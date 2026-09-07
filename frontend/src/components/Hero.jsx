@@ -16,24 +16,26 @@ export default function Hero({ onRegisterClick, onExploreClick }) {
     // Strict muted settings required by browser autoplay policies
     video.muted = true;
     video.defaultMuted = true;
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
 
-    const playVideo = () => {
+    const startPlayback = () => {
+      video.muted = true;
       const playPromise = video.play();
       if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // Autoplay restricted until interaction
-        });
+        playPromise.catch(() => {});
       }
     };
 
-    playVideo();
+    video.load();
+    video.addEventListener('canplay', startPlayback);
+    video.addEventListener('loadeddata', startPlayback);
+    startPlayback();
 
     // Fallback: start playing upon first user interaction anywhere
     const handleFirstInteraction = () => {
-      playVideo();
-      window.removeEventListener('click', handleFirstInteraction);
-      window.removeEventListener('touchstart', handleFirstInteraction);
-      window.removeEventListener('scroll', handleFirstInteraction);
+      startPlayback();
     };
 
     window.addEventListener('click', handleFirstInteraction, { once: true });
@@ -41,15 +43,17 @@ export default function Hero({ onRegisterClick, onExploreClick }) {
     window.addEventListener('scroll', handleFirstInteraction, { once: true });
 
     return () => {
+      video.removeEventListener('canplay', startPlayback);
+      video.removeEventListener('loadeddata', startPlayback);
       window.removeEventListener('click', handleFirstInteraction);
       window.removeEventListener('touchstart', handleFirstInteraction);
       window.removeEventListener('scroll', handleFirstInteraction);
     };
-  }, []);
+  }, [videoSrc]);
 
   return (
     <section className="relative min-h-[92vh] lg:min-h-screen flex items-center justify-center overflow-hidden bg-[#050505] py-16 lg:py-24">
-      {/* 1. Background Video Layer */}
+      {/* 1. Background Video Layer - Full Visibility */}
       <video
         ref={videoRef}
         src={videoSrc}
@@ -59,27 +63,20 @@ export default function Hero({ onRegisterClick, onExploreClick }) {
         playsInline
         webkit-playsinline="true"
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-0 opacity-80"
+        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-0 opacity-100"
       >
         <source src={videoSrc} type="video/mp4" />
         <source src={encodeURI(`${cleanBase}video/framefest video 2.mp4`)} type="video/mp4" />
       </video>
 
-      {/* 2. Dark Cinematic Overlay (Ensures text contrast while preserving video lighting) */}
-      <div className="absolute inset-0 bg-black/55 z-[1] pointer-events-none"></div>
-
-      {/* 3. Subtle Vignette & Seamless Bottom Blend Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#080808]/70 via-transparent to-[#080808] z-[2] pointer-events-none"></div>
-
-      {/* Background Ambient Red Glows (preserving visual atmosphere) */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-[#e50914]/15 rounded-full blur-[140px] pointer-events-none z-[3]"></div>
-      <div className="absolute -bottom-20 right-10 w-96 h-96 bg-[#e50914]/10 rounded-full blur-[120px] pointer-events-none z-[3]"></div>
+      {/* 2. Light Gradient Overlay - Keeps video visible while ensuring text readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/20 to-[#080808] z-[1] pointer-events-none"></div>
 
       {/* Decorative Film Strip Borders (Left and Right) */}
-      <div className="hidden lg:block absolute left-4 top-0 bottom-0 w-8 film-strip-vertical opacity-25 border-r border-[#222] z-[3] pointer-events-none"></div>
-      <div className="hidden lg:block absolute right-4 top-0 bottom-0 w-8 film-strip-vertical opacity-25 border-l border-[#222] z-[3] pointer-events-none"></div>
+      <div className="hidden lg:block absolute left-4 top-0 bottom-0 w-8 film-strip-vertical opacity-20 border-r border-[#222] z-[2] pointer-events-none"></div>
+      <div className="hidden lg:block absolute right-4 top-0 bottom-0 w-8 film-strip-vertical opacity-20 border-l border-[#222] z-[2] pointer-events-none"></div>
 
-      {/* 4. Hero Content Layer */}
+      {/* 3. Hero Content Layer */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         
         {/* Top Eyebrow Tag */}
