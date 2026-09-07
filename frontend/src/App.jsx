@@ -28,16 +28,14 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+
   const navigateTo = (page) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (page === 'admin') {
-      window.history.pushState(null, '', '/admin');
-    } else if (page === 'register') {
-      window.history.pushState(null, '', '/register');
-    } else {
-      window.history.pushState(null, '', '/');
-    }
+    const targetUrl = page === 'home' ? cleanBase : `${cleanBase}#${page}`;
+    window.history.pushState(null, '', targetUrl);
   };
 
   return (

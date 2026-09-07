@@ -14,8 +14,9 @@ const audioMimePlugin = {
 };
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react(), audioMimePlugin],
+  base: process.env.VITE_BASE_URL || (mode === 'production' ? '/Frame-Fest-26/' : '/'),
   server: {
     port: 5173,
     proxy: {
@@ -29,4 +30,4 @@ export default defineConfig({
       }
     }
   }
-});
+}));

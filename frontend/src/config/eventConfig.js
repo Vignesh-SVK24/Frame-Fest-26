@@ -32,7 +32,7 @@ export const EVENT_CONFIG = {
   },
   
   // WhatsApp Community / Group
-  whatsappQrImage: "/whatsapp-qr.jpg",
+  whatsappQrImage: `${(import.meta.env.BASE_URL || '/').replace(/\/$/, '')}/whatsapp-qr.jpg`,
   whatsappGroupTitle: "FRAMEFEST'26 WhatsApp Group",
   whatsappNote: "Scan the QR code below using WhatsApp or your camera to join the official Frame Fest ’26 participant group for instant updates, announcements, and schedules.",
   

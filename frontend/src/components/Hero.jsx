@@ -5,7 +5,9 @@ import WhyJoinSection from './WhyJoinSection';
 
 export default function Hero({ onRegisterClick, onExploreClick }) {
   const videoRef = useRef(null);
-  const videoSrc = encodeURI('/video/framefest video 2.mp4');
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const videoSrc = encodeURI(`${cleanBase}video/framefest video 2.mp4`);
 
   useEffect(() => {
     // Ensure video is strictly muted and attempt smooth autoplay

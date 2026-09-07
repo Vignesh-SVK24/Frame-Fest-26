@@ -7,7 +7,9 @@ export default function BackgroundMusic({ isHome = false }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Safe encoded URL for filename with spaces and double extension
-  const audioSrc = encodeURI('/audio/frame fest music.mp3.mpeg');
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const audioSrc = encodeURI(`${cleanBase}audio/frame fest music.mp3.mpeg`);
 
   // Initialize and check user preference
   useEffect(() => {
