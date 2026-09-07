@@ -1,0 +1,12 @@
+{
+  "name": "frame-fest-26-root",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "FRAME FEST '26 - Film & Editing Fest Registration Platform",
+  "scripts": {
+    "start:backend": "cd backend && node server.js",
+    "start:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "test": "node test_e2e.js"
+  }
+}

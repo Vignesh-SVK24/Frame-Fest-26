@@ -1,0 +1,62 @@
+[
+  {
+    "registrationId": "FF26-0001",
+    "name": "Vignesh S",
+    "registerNumber": "720725115115",
+    "department": "Artificial Intelligence & Machine Learning",
+    "section": "B",
+    "phone": "8667842531",
+    "email": "vigneshsvk24@gmail.com",
+    "whatsappJoined": true,
+    "createdAt": "2026-09-07T06:51:28.620Z",
+    "status": "CONFIRMED"
+  },
+  {
+    "registrationId": "FF26-0002",
+    "name": "Sai venkatesh",
+    "registerNumber": "720725115122",
+    "department": "Artificial Intelligence & Machine Learning",
+    "section": "A",
+    "phone": "1234567890",
+    "email": "vigneshsvk2407@gmail.com",
+    "whatsappJoined": true,
+    "createdAt": "2026-09-07T07:00:00.918Z",
+    "status": "CONFIRMED"
+  },
+  {
+    "registrationId": "FF26-0003",
+    "name": "Vignesh Selvaganesh",
+    "registerNumber": "7207251151155",
+    "department": "Artificial Intelligence & Machine Learning",
+    "section": "A",
+    "phone": "1234567890",
+    "email": "vigneshselva2407@gmail.com",
+    "whatsappJoined": true,
+    "createdAt": "2026-09-07T07:04:49.937Z",
+    "status": "CONFIRMED"
+  },
+  {
+    "registrationId": "FF26-0004",
+    "name": "Vignesh S",
+    "registerNumber": "7207251151152",
+    "department": "Artificial Intelligence & Data Science",
+    "section": "B",
+    "phone": "8667842531",
+    "email": "vigneshsvk2407@gmail.com",
+    "whatsappJoined": true,
+    "createdAt": "2026-09-07T10:02:04.171Z",
+    "status": "CONFIRMED"
+  },
+  {
+    "registrationId": "FF26-0005",
+    "name": "Vignesh Selvaganesh",
+    "registerNumber": "7207251151154",
+    "department": "Artificial Intelligence & Data Science",
+    "section": "C",
+    "phone": "1234567890",
+    "email": "vigneshselva2407@gmail.com",
+    "whatsappJoined": true,
+    "createdAt": "2026-09-07T10:05:11.211Z",
+    "status": "CONFIRMED"
+  }
+]
