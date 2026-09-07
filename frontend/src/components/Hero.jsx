@@ -7,19 +7,44 @@ export default function Hero({ onRegisterClick, onExploreClick }) {
   const videoRef = useRef(null);
   const baseUrl = import.meta.env.BASE_URL || '/';
   const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  const videoSrc = encodeURI(`${cleanBase}video/framefest video 2.mp4`);
+  const videoSrc = `${cleanBase}video/framefest-video-2.mp4`;
 
   useEffect(() => {
-    // Ensure video is strictly muted and attempt smooth autoplay
-    if (videoRef.current) {
-      videoRef.current.muted = true;
-      const playPromise = videoRef.current.play();
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Strict muted settings required by browser autoplay policies
+    video.muted = true;
+    video.defaultMuted = true;
+
+    const playVideo = () => {
+      const playPromise = video.play();
       if (playPromise !== undefined) {
         playPromise.catch(() => {
-          // Autoplay restricted by browser policy; fallback background displays smoothly
+          // Autoplay restricted until interaction
         });
       }
-    }
+    };
+
+    playVideo();
+
+    // Fallback: start playing upon first user interaction anywhere
+    const handleFirstInteraction = () => {
+      playVideo();
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('touchstart', handleFirstInteraction);
+      window.removeEventListener('scroll', handleFirstInteraction);
+    };
+
+    window.addEventListener('click', handleFirstInteraction, { once: true });
+    window.addEventListener('touchstart', handleFirstInteraction, { once: true });
+    window.addEventListener('scroll', handleFirstInteraction, { once: true });
+
+    return () => {
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('touchstart', handleFirstInteraction);
+      window.removeEventListener('scroll', handleFirstInteraction);
+    };
   }, []);
 
   return (
@@ -27,14 +52,17 @@ export default function Hero({ onRegisterClick, onExploreClick }) {
       {/* 1. Background Video Layer */}
       <video
         ref={videoRef}
+        src={videoSrc}
         autoPlay
         muted
         loop
         playsInline
-        preload="metadata"
-        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-0 opacity-80 motion-reduce:hidden"
+        webkit-playsinline="true"
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-0 opacity-80"
       >
         <source src={videoSrc} type="video/mp4" />
+        <source src={encodeURI(`${cleanBase}video/framefest video 2.mp4`)} type="video/mp4" />
       </video>
 
       {/* 2. Dark Cinematic Overlay (Ensures text contrast while preserving video lighting) */}

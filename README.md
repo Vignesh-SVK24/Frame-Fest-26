@@ -1,47 +1,63 @@
 # FRAME FEST ’26 — Official Event Registration Platform
 
-A fast, cinematic, and responsive event registration platform for **FRAME FEST ’26** (A Film & Editing Fest organized by the Department of Artificial Intelligence & Machine Learning, HICET).
+A fast, cinematic, and responsive event registration platform for **FRAME FEST ’26** (A Film & Editing Fest organized by the Department of Artificial Intelligence & Machine Learning, HICET — Hindusthan College of Engineering and Technology).
+
+🌐 **Live Website**: [https://vignesh-svk24.github.io/Frame-Fest-26/](https://vignesh-svk24.github.io/Frame-Fest-26/)
 
 ---
 
-## 🎬 Features
+## 🎥 Background Video & Media Assets
 
-- **Cinematic Aesthetic**: Black background (`#080808`), white bold typography, vivid red highlights (`#e50914`), film strip borders, and clapperboard motifs.
-- **Complete Participant Registration**:
+The platform features an ultra-cinematic looping background video with ambient dark overlays, subtle red lighting, and atmospheric fest music:
+
+- 🎬 **Hero Background Video**: [`public/video/framefest-video-2.mp4`](./public/video/framefest-video-2.mp4) (Also available at [`public/video/framefest video 2.mp4`](./public/video/framefest%20video%202.mp4))
+- 🎵 **Fest Soundtrack**: [`public/audio/frame fest music.mp3.mpeg`](./public/audio/frame%20fest%20music.mp3.mpeg) with floating interactive volume/mute controller
+- 💬 **WhatsApp Community QR**: [`public/whatsapp-qr.jpg`](./public/whatsapp-qr.jpg) for instant participant group access
+
+---
+
+## 🏆 Fest Highlights: Why Join Frame Fest ’26?
+
+- **Top 5 Winners Induction**: The Top 5 winners will earn a coveted place in the official **HICET VIRTUAL VANGUARDS** Digital Media Team!
+- **Participant Pass Generation**: Instant digital pass with custom barcode, participant verification details, and single-page **PDF & PNG download** options.
+- **17 Engineering Departments**: Tailored registration for AI & ML, Cyber Security, Computer Science, IT, ECE, EEE, Mechanical, Aeronautical, and more.
+
+---
+
+## 🎬 Core Features
+
+- **Cinematic Aesthetic**: Black background (`#080808`), white bold typography, vivid red highlights (`#e50914`), film strip borders, and video background.
+- **Participant Registration**:
   - Full Name
   - Register Number
-  - Department & Section dropdowns
-  - 10-Digit Indian Mobile Number validation
-  - Email format validation
-  - Configurable payment QR code
-  - Payment proof screenshot upload (PNG, JPG, JPEG <= 5MB) with image preview & remove/change options.
-- **Duplicate Prevention**: Rejects duplicate register numbers with:
-  > *"This register number is already registered for Frame Fest ’26."*
-- **Review Step**: Verify details before final submission.
-- **Success Screen & Receipt**:
+  - 17 Branch Department & Section selection
+  - 10-Digit Mobile validation & Email validation
+  - Official WhatsApp participant community integration
+- **Duplicate Prevention**: Immediate detection of duplicate register numbers.
+- **Success Screen & Pass Download**:
   - Generates unique ID format (e.g. `FF26-0001`).
-  - Celebratory confetti feedback.
-  - One-click **Download Receipt / Print Pass**.
-- **Organizer Admin Console (`/admin`)**:
+  - Single-page **PDF Ticket Pass** download.
+  - High-res **PNG Ticket Pass** download.
+- **Organizer Admin Console (`/#admin`)**:
   - Protected with passkey (`admin2026`).
-  - Real-time registration metrics (Total, Pending, Verified, Rejected).
+  - Real-time registration statistics (Total, Confirmed, Pending, Cancelled).
   - Search by Name, Register Number, or Registration ID.
   - Filter by Department, Section, and Status.
-  - Inspect participant payment screenshots.
-  - Update status (`PENDING`, `VERIFIED`, `REJECTED`).
   - **Export CSV** download.
 
 ---
 
-## 🚀 Running the Project
+## 🚀 Running the Project Locally
 
-### 1. Backend Server
+### 1. Unified Full-Stack Run
 ```bash
-cd backend
-npm install
-node server.js
+# Install all dependencies and build
+npm run build
+
+# Start the full-stack server
+npm start
 ```
-*Runs on `http://localhost:5001`*
+*Accessible on `http://localhost:5001`*
 
 ### 2. Frontend Development Server
 ```bash
@@ -49,19 +65,11 @@ cd frontend
 npm install
 npm run dev
 ```
-*Runs on `http://localhost:5173`*
+*Accessible on `http://localhost:5173`*
 
 ---
 
-## ⚙️ Configuration
+## 🌐 Deployments
 
-All event information, college details, payment QR code, and department options are centrally managed in:
-[`frontend/src/config/eventConfig.js`](file:///C:/Users/selva/.gemini/antigravity/scratch/frame-fest-26/frontend/src/config/eventConfig.js)
-
----
-
-## 🧪 Automated Testing
-Run the complete E2E test suite:
-```bash
-npm test
-```
+- **GitHub Pages**: [https://vignesh-svk24.github.io/Frame-Fest-26/](https://vignesh-svk24.github.io/Frame-Fest-26/)
+- **Render Dynamic Cloud (Optional)**: Connect repository to [render.com](https://render.com) using the included `render.yaml`.
