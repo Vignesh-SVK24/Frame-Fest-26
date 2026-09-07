@@ -543,25 +543,34 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
           </div>
         </div>
 
-        {/* WhatsApp Group Reminder */}
-        <div className="bg-[#101913] border border-[#25D366]/40 rounded-xl p-4 mb-8 text-left flex items-center gap-4">
-          <div className="w-16 h-16 bg-white p-1 rounded-lg shrink-0 flex items-center justify-center border border-neutral-600">
+        {/* WhatsApp Group Reminder (Clickable directly to WhatsApp Group) */}
+        <a
+          href={EVENT_CONFIG.whatsappGroupLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Click to join official WhatsApp group"
+          className="bg-[#101913] border border-[#25D366]/50 hover:border-[#25D366] rounded-xl p-4 mb-8 text-left flex items-center gap-4 transition-all hover:bg-[#122216] group cursor-pointer block"
+        >
+          <div className="w-16 h-16 bg-white p-1 rounded-lg shrink-0 flex items-center justify-center border border-neutral-600 group-hover:scale-105 transition-transform">
             <img
               src={EVENT_CONFIG.whatsappQrImage}
               alt="WhatsApp QR Code"
               className="w-full h-full object-contain"
             />
           </div>
-          <div className="text-xs">
-            <div className="font-bold text-white flex items-center space-x-1.5 mb-1">
+          <div className="text-xs flex-1">
+            <div className="font-bold text-white flex items-center space-x-1.5 mb-1 group-hover:text-[#25D366] transition-colors">
               <MessageCircle className="w-4 h-4 text-[#25D366]" />
-              <span>Don't Forget to Join WhatsApp Group</span>
+              <span>Join Official WhatsApp Group</span>
             </div>
             <p className="text-neutral-300">
-              Scan this QR to stay updated on event day schedules and guidelines.
+              Tap here or scan this QR to receive event day schedules, slot timings, and guidelines.
             </p>
+            <span className="inline-block text-[11px] font-bold text-[#25D366] mt-1.5 underline">
+              Tap to open WhatsApp &rarr;
+            </span>
           </div>
-        </div>
+        </a>
 
         {/* DOWNLOAD TICKET / PASS OPTIONS (PDF & IMAGE ONLY) */}
         <div className="space-y-3 mb-6 text-left">

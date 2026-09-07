@@ -42,7 +42,8 @@ export default function EventDetails() {
       type: "list",
       names: EVENT_CONFIG.staffCoordinators,
       subtitle: "Faculty Coordinators",
-      icon: <Users className="w-5 h-5 text-[#e50914]" />
+      icon: <Users className="w-5 h-5 text-[#e50914]" />,
+      orderClass: "order-3 md:order-1"
     },
     {
       role: "CONVENOR",
@@ -50,7 +51,8 @@ export default function EventDetails() {
       name: EVENT_CONFIG.convenor.name,
       designation: EVENT_CONFIG.convenor.designation,
       subtitle: "Department Leadership",
-      icon: <UserCheck className="w-5 h-5 text-[#e50914]" />
+      icon: <UserCheck className="w-5 h-5 text-[#e50914]" />,
+      orderClass: "order-2 md:order-2"
     },
     {
       role: "PATRON",
@@ -58,7 +60,8 @@ export default function EventDetails() {
       name: EVENT_CONFIG.patron.name,
       designation: EVENT_CONFIG.patron.designation,
       subtitle: "Institutional Patron",
-      icon: <ShieldCheck className="w-5 h-5 text-[#e50914]" />
+      icon: <ShieldCheck className="w-5 h-5 text-[#e50914]" />,
+      orderClass: "order-1 md:order-3"
     }
   ];
 
@@ -125,7 +128,7 @@ export default function EventDetails() {
           {leadership.map((item, idx) => (
             <div
               key={idx}
-              className="bg-[#121212] border border-[#222222] hover:border-[#e50914]/40 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 shadow-md flex flex-col justify-between"
+              className={`bg-[#121212] border border-[#222222] hover:border-[#e50914]/40 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 shadow-md flex flex-col justify-between ${item.orderClass}`}
             >
               <div>
                 {/* Header with Role & Icon */}
