@@ -319,7 +319,11 @@ if (fs.existsSync(FRONTEND_DIST)) {
   });
 }
 
-// Start backend
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[Frame Fest '26] Full-stack Server running on port ${PORT}`);
-});
+// Start backend (when run directly as a Node process)
+if (!process.env.VERCEL) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[Frame Fest '26] Full-stack Server running on port ${PORT}`);
+  });
+}
+
+export default app;
