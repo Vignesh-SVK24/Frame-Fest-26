@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: frame-fest-26
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_KEY
+        value: admin2026

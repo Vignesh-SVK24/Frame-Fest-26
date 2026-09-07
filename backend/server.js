@@ -307,7 +307,19 @@ app.get('/api/admin/export-csv', requireAdmin, (req, res) => {
   res.status(200).send(csvContent);
 });
 
+// --- PRODUCTION FRONTEND SERVING ---
+const FRONTEND_DIST = path.join(__dirname, '../frontend/dist');
+if (fs.existsSync(FRONTEND_DIST)) {
+  app.use(express.static(FRONTEND_DIST));
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({ success: false, message: 'API endpoint not found' });
+    }
+    res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
+  });
+}
+
 // Start backend
-app.listen(PORT, () => {
-  console.log(`[Frame Fest '26] Backend API running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`[Frame Fest '26] Full-stack Server running on port ${PORT}`);
 });
