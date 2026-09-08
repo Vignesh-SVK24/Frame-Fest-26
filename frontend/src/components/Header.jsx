@@ -1,13 +1,27 @@
-import React, { useState } from 'react';
-import { Film, Menu, X, Clapperboard } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Film, Menu, X, Clapperboard, User, Shield, LogIn } from 'lucide-react';
 import { EVENT_CONFIG } from '../config/eventConfig';
 
 export default function Header({ currentPage, setCurrentPage }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const adminMenuRef = useRef(null);
+
+  // Close admin dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (adminMenuRef.current && !adminMenuRef.current.contains(event.target)) {
+        setAdminMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const navigateTo = (page, anchorId) => {
     setCurrentPage(page);
     setMobileMenuOpen(false);
+    setAdminMenuOpen(false);
     if (anchorId) {
       setTimeout(() => {
         const el = document.getElementById(anchorId);
@@ -47,7 +61,7 @@ export default function Header({ currentPage, setCurrentPage }) {
             </div>
           </button>
 
-          {/* Center Navigation (Desktop) */}
+          {/* Center Navigation (Desktop) - Admin section is NOT openly visible here */}
           <nav className="hidden md:flex items-center space-x-8 text-sm font-semibold tracking-wide">
             <button
               onClick={() => navigateTo('home')}
@@ -79,27 +93,71 @@ export default function Header({ currentPage, setCurrentPage }) {
             </button>
           </nav>
 
-          {/* Right CTA Button (Desktop) */}
-          <div className="hidden md:flex items-center space-x-4">
-            <button
-              onClick={() => navigateTo('register')}
-              className="px-5 py-2.5 rounded-md bg-[#e50914] text-white text-sm font-bold tracking-wider hover:bg-[#b80710] shadow-[0_0_20px_rgba(229,9,20,0.35)] hover:shadow-[0_0_25px_rgba(229,9,20,0.55)] transition-all transform hover:-translate-y-0.5 flex items-center space-x-2"
-            >
-              <Clapperboard className="w-4 h-4" />
-              <span>REGISTER NOW</span>
-            </button>
-          </div>
+          {/* Right Area: Register Button + Discrete Admin Profile Icon */}
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            
+            {/* Desktop Register Button */}
+            <div className="hidden md:block">
+              <button
+                onClick={() => navigateTo('register')}
+                className="px-5 py-2.5 rounded-md bg-[#e50914] text-white text-sm font-bold tracking-wider hover:bg-[#b80710] shadow-[0_0_20px_rgba(229,9,20,0.35)] hover:shadow-[0_0_25px_rgba(229,9,20,0.55)] transition-all transform hover:-translate-y-0.5 flex items-center space-x-2"
+              >
+                <Clapperboard className="w-4 h-4" />
+                <span>REGISTER NOW</span>
+              </button>
+            </div>
 
-          {/* Mobile Menu Button */}
-          <div className="flex md:hidden">
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-md text-neutral-300 hover:text-white hover:bg-[#1a1a1a] focus:outline-none"
-              aria-label="Toggle Navigation Menu"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            {/* Admin Profile/User Icon at TOP-RIGHT Corner */}
+            <div className="relative" ref={adminMenuRef}>
+              <button
+                type="button"
+                onClick={() => setAdminMenuOpen(!adminMenuOpen)}
+                className={`p-2 rounded-lg border transition-all flex items-center justify-center ${
+                  adminMenuOpen || currentPage === 'admin'
+                    ? 'bg-[#1e1e1e] border-[#e50914] text-[#e50914] shadow-[0_0_12px_rgba(229,9,20,0.3)]'
+                    : 'bg-[#141414] border-[#2b2b2b] text-neutral-400 hover:text-white hover:border-neutral-500'
+                }`}
+                title="Organizer Profile"
+                aria-label="Admin Profile Menu"
+              >
+                <User className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+
+              {/* Admin Profile Dropdown Menu */}
+              {adminMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-xl bg-[#111111] border border-[#262626] shadow-2xl py-1.5 z-50 animate-fadeIn">
+                  <div className="px-3 py-2 border-b border-[#202020]">
+                    <div className="text-[10px] font-mono font-bold tracking-widest text-neutral-500 uppercase">
+                      ORGANIZER CONSOLE
+                    </div>
+                    <div className="text-xs font-bold text-white font-cinematic mt-0.5">
+                      FRAME FEST ’26
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => navigateTo('admin')}
+                    className="w-full text-left px-3 py-2.5 text-xs font-bold tracking-wider text-neutral-200 hover:text-white hover:bg-[#1a1a1a] flex items-center space-x-2.5 transition-colors group"
+                  >
+                    <Shield className="w-3.5 h-3.5 text-[#e50914] group-hover:scale-110 transition-transform" />
+                    <span>ADMIN LOGIN</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Menu Toggle Button */}
+            <div className="flex md:hidden">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-lg bg-[#141414] border border-[#2b2b2b] text-neutral-300 hover:text-white hover:bg-[#1a1a1a] focus:outline-none"
+                aria-label="Toggle Navigation Menu"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
+
           </div>
         </div>
       </div>

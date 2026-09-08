@@ -9,7 +9,14 @@
     "email": "vigneshsvk24@gmail.com",
     "whatsappJoined": true,
     "createdAt": "2026-09-07T06:51:28.620Z",
-    "status": "CONFIRMED"
+    "status": "CONFIRMED",
+    "registrationDate": "07 Sept 2026, 12:21 PM",
+    "attendanceStatus": "PRESENT",
+    "attendanceDate": "08 Sept 2026",
+    "attendanceTime": "09:06 PM",
+    "markedBy": "Satheesh",
+    "paymentProof": null,
+    "updatedAt": "2026-09-08T15:36:47.492Z"
   },
   {
     "registrationId": "FF26-0002",
@@ -21,7 +28,14 @@
     "email": "vigneshsvk2407@gmail.com",
     "whatsappJoined": true,
     "createdAt": "2026-09-07T07:00:00.918Z",
-    "status": "CONFIRMED"
+    "status": "CONFIRMED",
+    "registrationDate": "07 Sept 2026, 12:30 PM",
+    "attendanceStatus": "ABSENT",
+    "attendanceDate": "08 Sept 2026",
+    "attendanceTime": "09:06 PM",
+    "markedBy": "Satheesh",
+    "paymentProof": null,
+    "updatedAt": "2026-09-08T15:36:47.545Z"
   },
   {
     "registrationId": "FF26-0003",
@@ -33,7 +47,13 @@
     "email": "vigneshselva2407@gmail.com",
     "whatsappJoined": true,
     "createdAt": "2026-09-07T07:04:49.937Z",
-    "status": "CONFIRMED"
+    "status": "CONFIRMED",
+    "registrationDate": "07 Sept 2026, 12:34 PM",
+    "attendanceStatus": "PENDING",
+    "attendanceDate": null,
+    "attendanceTime": null,
+    "markedBy": null,
+    "paymentProof": null
   },
   {
     "registrationId": "FF26-0004",
@@ -45,7 +65,13 @@
     "email": "vigneshsvk2407@gmail.com",
     "whatsappJoined": true,
     "createdAt": "2026-09-07T10:02:04.171Z",
-    "status": "CONFIRMED"
+    "status": "CONFIRMED",
+    "registrationDate": "07 Sept 2026, 03:32 PM",
+    "attendanceStatus": "PENDING",
+    "attendanceDate": null,
+    "attendanceTime": null,
+    "markedBy": null,
+    "paymentProof": null
   },
   {
     "registrationId": "FF26-0005",
@@ -57,6 +83,12 @@
     "email": "vigneshselva2407@gmail.com",
     "whatsappJoined": true,
     "createdAt": "2026-09-07T10:05:11.211Z",
-    "status": "CONFIRMED"
+    "status": "CONFIRMED",
+    "registrationDate": "07 Sept 2026, 03:35 PM",
+    "attendanceStatus": "PENDING",
+    "attendanceDate": null,
+    "attendanceTime": null,
+    "markedBy": null,
+    "paymentProof": null
   }
 ]

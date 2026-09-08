@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  ShieldCheck, 
+  Shield, 
   Search, 
   Download, 
   RefreshCw, 
@@ -12,94 +12,166 @@ import {
   Lock,
   LogOut,
   Users,
-  MessageCircle
+  Calendar,
+  AlertCircle,
+  Check,
+  FileSpreadsheet,
+  QrCode,
+  Sparkles,
+  ArrowRight,
+  UserCheck,
+  UserX
 } from 'lucide-react';
 import { EVENT_CONFIG } from '../config/eventConfig';
 
 export default function Admin({ onNavigateHome }) {
-  // Auth state
-  const [adminKey, setAdminKey] = useState(() => localStorage.getItem('frame_fest_admin_key') || '');
+  // Session / Auth state
+  const [adminToken, setAdminToken] = useState(() => sessionStorage.getItem('ff26_admin_token') || '');
+  const [currentAdmin, setCurrentAdmin] = useState(() => sessionStorage.getItem('ff26_admin_name') || '');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loginInput, setLoginInput] = useState('');
-  const [loginError, setLoginError] = useState('');
 
-  // Data state
+  // Login form state
+  const [loginUsername, setLoginUsername] = useState('Satheesh');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Data & Dashboard state
   const [registrations, setRegistrations] = useState([]);
-  const [stats, setStats] = useState({ total: 0, confirmed: 0, pending: 0, cancelled: 0 });
+  const [stats, setStats] = useState({ total: 0, present: 0, absent: 0, pending: 0 });
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  // Attendance Mode state (Event Date: 18 September 2026)
+  const eventDateObj = useMemo(() => new Date('2026-09-18T00:00:00'), []);
+  const isEventDayOrAfter = useMemo(() => new Date() >= eventDateObj, [eventDateObj]);
+  const [attendanceOpen, setAttendanceOpen] = useState(false);
+
+  // Quick Ticket ID Scanner / Search in Attendance Mode
+  const [quickSearchInput, setQuickSearchInput] = useState('');
 
   // Search & Filter state
   const [searchTerm, setSearchTerm] = useState('');
   const [deptFilter, setDeptFilter] = useState('ALL');
   const [sectionFilter, setSectionFilter] = useState('ALL');
-  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [attendanceFilter, setAttendanceFilter] = useState('ALL');
 
-  // Modal for Viewing Details
-  const [selectedReg, setSelectedReg] = useState(null);
-  const [updatingStatus, setUpdatingStatus] = useState(false);
+  // Confirmation Modal state for Marking Attendance
+  // { reg: Object, targetStatus: 'PRESENT' | 'ABSENT' }
+  const [confirmModal, setConfirmModal] = useState(null);
+  const [actionProcessing, setActionProcessing] = useState(false);
+  const [actionNotice, setActionNotice] = useState({ type: '', text: '' });
 
-  // Check login on load
+  // Participant Details Modal
+  const [selectedParticipant, setSelectedParticipant] = useState(null);
+  const [viewPaymentModal, setViewPaymentModal] = useState(null); // filename
+
+  // On mount, verify existing session token
   useEffect(() => {
-    if (adminKey) {
-      verifyAdminKey(adminKey);
+    if (adminToken) {
+      verifySession(adminToken);
     }
   }, []);
 
-  const verifyAdminKey = async (key) => {
+  const verifySession = async (token) => {
     try {
-      let isSuccess = false;
-      try {
-        const res = await fetch('/api/admin/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ key })
-        });
-        if (res.ok) {
-          isSuccess = true;
-        } else if (key === 'admin2026') {
-          isSuccess = true;
-        }
-      } catch {
-        if (key === 'admin2026') {
-          isSuccess = true;
-        }
-      }
-
-      if (isSuccess) {
+      const res = await fetch('/api/admin/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
         setIsAuthenticated(true);
-        localStorage.setItem('frame_fest_admin_key', key);
-        fetchData(key);
+        setCurrentAdmin(data.adminName || 'Admin');
+        fetchDashboardData(token);
       } else {
-        setIsAuthenticated(false);
-        localStorage.removeItem('frame_fest_admin_key');
-        setLoginError('Invalid admin passkey. Please try again.');
+        handleLogout();
       }
     } catch {
-      setLoginError('Unable to connect to server.');
+      // In offline / fallback demo mode
+      if (token) {
+        setIsAuthenticated(true);
+        fetchDashboardData(token);
+      }
     }
   };
 
-  const handleLoginSubmit = (e) => {
+  // Submit Login
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (!loginInput.trim()) {
-      setLoginError('Please enter admin passkey.');
+    setLoginError('');
+    if (!loginUsername || !loginPassword) {
+      setLoginError('Invalid admin name or password.');
       return;
     }
-    setLoginError('');
-    setAdminKey(loginInput.trim());
-    verifyAdminKey(loginInput.trim());
+
+    setIsLoggingIn(true);
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: loginUsername.trim(),
+          password: loginPassword
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setAdminToken(data.token);
+        setCurrentAdmin(data.adminName);
+        sessionStorage.setItem('ff26_admin_token', data.token);
+        sessionStorage.setItem('ff26_admin_name', data.adminName);
+        setIsAuthenticated(true);
+        setLoginPassword('');
+        fetchDashboardData(data.token);
+      } else {
+        setLoginError(data.message || 'Invalid admin name or password.');
+      }
+    } catch (err) {
+      // Fallback verification for demo or offline server
+      const defaultPass = {
+        Satheesh: 'Satheesh@FF26',
+        Devi: 'Devi@FF26',
+        Vignesh: 'Vignesh@FF26'
+      };
+      if (defaultPass[loginUsername] && defaultPass[loginUsername] === loginPassword) {
+        const dummyToken = 'demo-token-' + Date.now();
+        setAdminToken(dummyToken);
+        setCurrentAdmin(loginUsername);
+        sessionStorage.setItem('ff26_admin_token', dummyToken);
+        sessionStorage.setItem('ff26_admin_name', loginUsername);
+        setIsAuthenticated(true);
+        setLoginPassword('');
+        fetchDashboardData(dummyToken);
+      } else {
+        setLoginError('Invalid admin name or password.');
+      }
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
+  // Logout
   const handleLogout = () => {
-    localStorage.removeItem('frame_fest_admin_key');
-    setAdminKey('');
+    if (adminToken) {
+      fetch('/api/admin/logout', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${adminToken}` }
+      }).catch(() => {});
+    }
+    sessionStorage.removeItem('ff26_admin_token');
+    sessionStorage.removeItem('ff26_admin_name');
+    setAdminToken('');
+    setCurrentAdmin('');
     setIsAuthenticated(false);
     setRegistrations([]);
+    setSelectedParticipant(null);
+    setConfirmModal(null);
+    onNavigateHome();
   };
 
   // Fetch registrations and stats
-  const fetchData = async (key = adminKey) => {
+  const fetchDashboardData = async (token = adminToken) => {
     setLoading(true);
     setErrorMsg('');
     try {
@@ -107,139 +179,217 @@ export default function Admin({ onNavigateHome }) {
       if (searchTerm) params.append('search', searchTerm);
       if (deptFilter !== 'ALL') params.append('department', deptFilter);
       if (sectionFilter !== 'ALL') params.append('section', sectionFilter);
-      if (statusFilter !== 'ALL') params.append('status', statusFilter);
+      if (attendanceFilter !== 'ALL') params.append('attendanceStatus', attendanceFilter);
 
-      let fetched = false;
-      try {
-        const [regRes, statsRes] = await Promise.all([
-          fetch(`/api/admin/registrations?${params.toString()}`, {
-            headers: { 'x-admin-key': key }
-          }),
-          fetch('/api/admin/stats', {
-            headers: { 'x-admin-key': key }
-          })
-        ]);
+      const [regRes, statsRes] = await Promise.all([
+        fetch(`/api/admin/registrations?${params.toString()}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        fetch('/api/admin/stats', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
 
-        if (regRes.ok && statsRes.ok) {
-          const regJson = await regRes.json();
-          const statsJson = await statsRes.json();
-          setRegistrations(regJson.data || []);
-          setStats(statsJson);
-          fetched = true;
-        }
-      } catch {}
-
-      if (!fetched) {
-        // Fallback for static hosting (e.g. GitHub Pages)
-        let local = JSON.parse(localStorage.getItem('frame_fest_registrations') || '[]');
-        if (searchTerm) {
-          const s = searchTerm.toLowerCase();
-          local = local.filter(r => (r.name || '').toLowerCase().includes(s) || (r.registerNumber || '').toLowerCase().includes(s) || (r.email || '').toLowerCase().includes(s));
-        }
-        if (deptFilter !== 'ALL') local = local.filter(r => r.department === deptFilter);
-        if (sectionFilter !== 'ALL') local = local.filter(r => r.section === sectionFilter);
-        if (statusFilter !== 'ALL') local = local.filter(r => (r.status || 'Confirmed') === statusFilter);
-
-        setRegistrations(local);
-        const allLocal = JSON.parse(localStorage.getItem('frame_fest_registrations') || '[]');
+      if (regRes.ok && statsRes.ok) {
+        const regJson = await regRes.json();
+        const statsJson = await statsRes.json();
+        setRegistrations(regJson.data || []);
         setStats({
-          total: allLocal.length,
-          confirmed: allLocal.filter(r => (r.status || 'Confirmed') === 'Confirmed').length,
-          pending: allLocal.filter(r => r.status === 'Pending').length,
-          cancelled: allLocal.filter(r => r.status === 'Cancelled').length
+          total: statsJson.total || 0,
+          present: statsJson.present || 0,
+          absent: statsJson.absent || 0,
+          pending: statsJson.pending || 0
         });
+      } else {
+        throw new Error('Failed to load admin data');
       }
     } catch (err) {
       console.error(err);
-      setErrorMsg('Error loading registration data.');
+      setErrorMsg('Attendance could not be loaded. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Trigger search on filter changes
+  // Re-fetch on filter changes
   useEffect(() => {
     if (isAuthenticated) {
-      fetchData();
+      fetchDashboardData();
     }
-  }, [searchTerm, deptFilter, sectionFilter, statusFilter]);
+  }, [searchTerm, deptFilter, sectionFilter, attendanceFilter]);
 
-  // Update status for a participant
-  const handleStatusChange = async (regId, newStatus) => {
-    setUpdatingStatus(true);
+  // Execute Marking Attendance after Confirmation Modal
+  const handleExecuteAttendance = async () => {
+    if (!confirmModal || !confirmModal.reg || !confirmModal.targetStatus) return;
+
+    const { reg, targetStatus } = confirmModal;
+    setActionProcessing(true);
+    setActionNotice({ type: '', text: '' });
+
     try {
-      const res = await fetch(`/api/admin/registrations/${regId}/status`, {
-        method: 'PATCH',
+      const res = await fetch(`/api/admin/attendance/${reg.registrationId}`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-key': adminKey
+          Authorization: `Bearer ${adminToken}`
         },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ status: targetStatus })
       });
 
-      if (res.ok) {
+      const json = await res.json();
+
+      if (res.ok && json.success) {
+        setActionNotice({
+          type: 'success',
+          text: `Marked ${reg.name} (${reg.registrationId}) as ${targetStatus}.`
+        });
+
+        // Update local list and stats immediately
         setRegistrations((prev) =>
-          prev.map((r) => (r.registrationId === regId ? { ...r, status: newStatus } : r))
+          prev.map((r) =>
+            r.registrationId === reg.registrationId ? json.data : r
+          )
         );
-        if (selectedReg && selectedReg.registrationId === regId) {
-          setSelectedReg((prev) => ({ ...prev, status: newStatus }));
+
+        if (selectedParticipant && selectedParticipant.registrationId === reg.registrationId) {
+          setSelectedParticipant(json.data);
         }
-        fetchData();
+
+        setConfirmModal(null);
+        fetchDashboardData();
+        setQuickSearchInput('');
       } else {
-        alert('Failed to update status.');
+        setActionNotice({
+          type: 'error',
+          text: json.message || 'Attendance could not be saved. Please try again.'
+        });
       }
     } catch (err) {
-      alert('Error updating status.');
+      setActionNotice({
+        type: 'error',
+        text: 'Attendance could not be saved. Please try again.'
+      });
     } finally {
-      setUpdatingStatus(false);
+      setActionProcessing(false);
     }
   };
 
   // Export CSV
   const handleExportCsv = () => {
-    window.open(`/api/admin/export-csv?adminKey=${encodeURIComponent(adminKey)}`, '_blank');
+    window.open(`/api/admin/export-csv?adminToken=${encodeURIComponent(adminToken)}`, '_blank');
   };
 
-  // Render Login Card if not authenticated
+  // Quick matched participant for Attendance Quick Scan
+  const quickMatchedParticipant = useMemo(() => {
+    if (!quickSearchInput.trim()) return null;
+    const q = quickSearchInput.trim().toUpperCase();
+    return registrations.find(
+      (r) =>
+        r.registrationId.toUpperCase() === q ||
+        r.registerNumber.toUpperCase() === q ||
+        r.name.toUpperCase().includes(q)
+    );
+  }, [quickSearchInput, registrations]);
+
+  // Helper for attendance badge
+  const getAttendanceBadge = (status) => {
+    const s = (status || 'PENDING').toUpperCase();
+    if (s === 'PRESENT') {
+      return (
+        <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-950/60 text-green-400 border border-green-800/60 shadow-[0_0_10px_rgba(34,197,94,0.15)]">
+          <CheckCircle2 className="w-3.5 h-3.5" />
+          <span>PRESENT</span>
+        </span>
+      );
+    }
+    if (s === 'ABSENT') {
+      return (
+        <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-950/60 text-red-400 border border-red-800/60 shadow-[0_0_10px_rgba(239,68,68,0.15)]">
+          <XCircle className="w-3.5 h-3.5" />
+          <span>ABSENT</span>
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-950/50 text-amber-400 border border-amber-800/50">
+        <Clock className="w-3.5 h-3.5" />
+        <span>PENDING</span>
+      </span>
+    );
+  };
+
+  // -------------------------------------------------------------
+  // VIEW 1: PROTECTED ADMIN LOGIN MODAL / CARD
+  // -------------------------------------------------------------
   if (!isAuthenticated) {
     return (
-      <div className="min-h-[75vh] flex items-center justify-center px-4 py-16">
-        <div className="bg-[#121212] border border-[#262626] rounded-2xl max-w-md w-full p-8 shadow-2xl text-center">
+      <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
+        <div className="bg-[#121212] border border-[#262626] rounded-2xl max-w-md w-full p-8 shadow-2xl relative text-center">
           
-          <div className="w-14 h-14 rounded-full bg-[#1b1b1b] border border-[#333] text-[#e50914] flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-6 h-6" />
+          {/* Film Perforation accent */}
+          <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#e50914] to-transparent mb-6"></div>
+
+          <div className="w-14 h-14 rounded-2xl bg-[#181818] border border-[#333] text-[#e50914] flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(229,9,20,0.25)]">
+            <Lock className="w-7 h-7" />
           </div>
 
-          <h2 className="text-2xl font-black font-cinematic uppercase tracking-tight text-white mb-1">
-            ORGANIZER PORTAL
+          <div className="text-[11px] font-mono font-bold tracking-[0.2em] text-[#e50914] uppercase mb-1">
+            FRAME FEST ’26
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black font-cinematic uppercase tracking-tight text-white mb-2">
+            ADMIN LOGIN
           </h2>
           <p className="text-xs text-neutral-400 mb-6">
-            Enter authorized administrator passkey to view {EVENT_CONFIG.name} registrations.
+            Authorized administrator access for organizing committee.
           </p>
 
-          <form onSubmit={handleLoginSubmit} className="space-y-4 text-left">
+          <form onSubmit={handleLogin} className="space-y-4 text-left">
+            {/* Admin Username Dropdown */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300 mb-2">
-                ADMIN PASSKEY
+                ADMINISTRATOR
+              </label>
+              <select
+                value={loginUsername}
+                onChange={(e) => setLoginUsername(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg bg-[#181818] border border-[#333] text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#e50914] focus:border-[#e50914]"
+              >
+                <option value="Satheesh">Satheesh</option>
+                <option value="Devi">Devi</option>
+                <option value="Vignesh">Vignesh</option>
+              </select>
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300 mb-2">
+                PASSWORD
               </label>
               <input
                 type="password"
-                value={loginInput}
-                onChange={(e) => setLoginInput(e.target.value)}
-                placeholder="Enter passkey (default: admin2026)"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="Enter admin password"
                 className="w-full px-4 py-3 rounded-lg bg-[#181818] border border-[#333] text-white placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#e50914] focus:border-[#e50914]"
+                autoFocus
               />
             </div>
 
+            {/* Error Message */}
             {loginError && (
-              <p className="text-xs text-red-400">{loginError}</p>
+              <div className="p-3 rounded-lg bg-red-950/40 border border-red-800/60 text-red-300 text-xs flex items-center space-x-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{loginError}</span>
+              </div>
             )}
 
             <button
               type="submit"
-              className="w-full py-3 rounded-lg bg-[#e50914] hover:bg-[#b80710] text-white font-bold tracking-wider uppercase text-sm shadow-[0_0_15px_rgba(229,9,20,0.4)] transition-all"
+              disabled={isLoggingIn}
+              className="w-full py-3.5 rounded-lg bg-[#e50914] hover:bg-[#b80710] text-white font-bold tracking-wider uppercase text-xs sm:text-sm shadow-[0_0_20px_rgba(229,9,20,0.4)] transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
             >
-              UNLOCK DASHBOARD
+              <Shield className="w-4 h-4" />
+              <span>{isLoggingIn ? 'AUTHENTICATING...' : 'SIGN IN'}</span>
             </button>
 
             <button
@@ -256,58 +406,31 @@ export default function Admin({ onNavigateHome }) {
     );
   }
 
-  // Status badge helper
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'CONFIRMED':
-      case 'VERIFIED':
-        return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-green-950/40 text-green-400 border border-green-800/50">
-            <CheckCircle2 className="w-3 h-3" />
-            <span>CONFIRMED</span>
-          </span>
-        );
-      case 'CANCELLED':
-      case 'REJECTED':
-        return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-950/40 text-red-400 border border-red-800/50">
-            <XCircle className="w-3 h-3" />
-            <span>CANCELLED</span>
-          </span>
-        );
-      case 'PENDING':
-      default:
-        return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-yellow-950/40 text-yellow-400 border border-yellow-800/50">
-            <Clock className="w-3 h-3" />
-            <span>PENDING</span>
-          </span>
-        );
-    }
-  };
-
+  // -------------------------------------------------------------
+  // VIEW 2: AUTHENTICATED ADMIN DASHBOARD & ATTENDANCE REGISTER
+  // -------------------------------------------------------------
   return (
-    <div className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+    <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
       
-      {/* Top Bar */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-[#222] gap-4">
+      {/* Top Header: Welcome [Admin Name] + Logout + Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-[#222] gap-4">
         <div>
           <div className="flex items-center space-x-2 text-xs font-mono font-bold tracking-widest text-[#e50914] uppercase mb-1">
-            <ShieldCheck className="w-4 h-4" />
-            <span>SECURE ORGANIZER CONSOLE</span>
+            <Shield className="w-4 h-4" />
+            <span>FRAME FEST ’26 ADMIN CONSOLE</span>
           </div>
-          <h1 className="text-3xl font-black font-cinematic uppercase tracking-tight text-white">
-            {EVENT_CONFIG.titlePrefix} <span className="text-[#e50914]">{EVENT_CONFIG.titleYear}</span> REGISTRATIONS
+          <h1 className="text-2xl sm:text-3xl font-black font-cinematic uppercase tracking-tight text-white">
+            {attendanceOpen ? 'ATTENDANCE REGISTER' : 'ADMIN DASHBOARD'}
           </h1>
           <p className="text-xs text-neutral-400 mt-1">
-            {EVENT_CONFIG.department} • {EVENT_CONFIG.college}
+            Welcome, <span className="font-bold text-white uppercase">{currentAdmin}</span> • AIML Department, HICET
           </p>
         </div>
 
-        {/* Action Controls */}
-        <div className="flex items-center space-x-3">
+        {/* Header Right Controls */}
+        <div className="flex items-center space-x-2 sm:space-x-3">
           <button
-            onClick={() => fetchData()}
+            onClick={() => fetchDashboardData()}
             disabled={loading}
             className="p-2.5 rounded-lg bg-[#181818] border border-[#2d2d2d] text-neutral-300 hover:text-white hover:border-[#444] transition-colors"
             title="Refresh Data"
@@ -317,77 +440,246 @@ export default function Admin({ onNavigateHome }) {
 
           <button
             onClick={handleExportCsv}
-            className="px-4 py-2.5 rounded-lg bg-[#181818] border border-[#333] hover:border-[#e50914] text-white text-xs font-bold tracking-wider uppercase flex items-center space-x-2 transition-all shadow-sm"
+            className="px-3.5 py-2.5 rounded-lg bg-[#181818] border border-[#333] hover:border-[#e50914] text-white text-xs font-bold tracking-wider uppercase flex items-center space-x-2 transition-all shadow-sm"
+            title="Export Attendance CSV"
           >
             <Download className="w-4 h-4 text-[#e50914]" />
-            <span>EXPORT CSV</span>
+            <span className="hidden sm:inline">EXPORT ATTENDANCE CSV</span>
+            <span className="sm:hidden">CSV</span>
           </button>
 
           <button
             onClick={handleLogout}
-            className="p-2.5 rounded-lg bg-red-950/20 border border-red-900/40 text-red-400 hover:bg-red-950/40 transition-colors"
+            className="px-3 py-2.5 rounded-lg bg-red-950/30 border border-red-900/50 text-red-400 hover:bg-red-950/60 text-xs font-bold tracking-wider uppercase flex items-center space-x-1.5 transition-colors"
             title="Log Out"
           >
             <LogOut className="w-4 h-4" />
+            <span>LOGOUT</span>
           </button>
         </div>
       </div>
 
-      {/* Metrics Bar */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#121212] border border-[#222] rounded-xl p-5 shadow-sm">
-          <div className="text-xs font-mono font-bold tracking-widest text-neutral-400 uppercase">
+      {/* Global Status / Notice Banner */}
+      {actionNotice.text && (
+        <div
+          className={`p-3.5 rounded-xl border flex items-center justify-between text-xs animate-fadeIn ${
+            actionNotice.type === 'success'
+              ? 'bg-green-950/40 border-green-800/60 text-green-300'
+              : 'bg-red-950/40 border-red-800/60 text-red-300'
+          }`}
+        >
+          <div className="flex items-center space-x-2">
+            {actionNotice.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-green-400" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-red-400" />
+            )}
+            <span className="font-semibold">{actionNotice.text}</span>
+          </div>
+          <button
+            onClick={() => setActionNotice({ type: '', text: '' })}
+            className="text-neutral-400 hover:text-white"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* 4 Main Summary Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* TOTAL REGISTERED */}
+        <div className="bg-[#121212] border border-[#222] rounded-xl p-4 sm:p-5 shadow-sm">
+          <div className="text-[11px] font-mono font-bold tracking-widest text-neutral-400 uppercase">
             TOTAL REGISTERED
           </div>
-          <div className="text-3xl font-black text-white mt-1 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-white mt-1 font-mono">
             {stats.total}
           </div>
         </div>
 
-        <div className="bg-[#121212] border border-[#222] rounded-xl p-5 shadow-sm">
-          <div className="text-xs font-mono font-bold tracking-widest text-green-500 uppercase">
-            CONFIRMED
+        {/* PRESENT */}
+        <div className="bg-[#121212] border border-[#222] rounded-xl p-4 sm:p-5 shadow-sm">
+          <div className="text-[11px] font-mono font-bold tracking-widest text-green-500 uppercase">
+            PRESENT
           </div>
-          <div className="text-3xl font-black text-green-400 mt-1 font-mono">
-            {stats.confirmed}
+          <div className="text-2xl sm:text-3xl font-black text-green-400 mt-1 font-mono">
+            {stats.present}
           </div>
         </div>
 
-        <div className="bg-[#121212] border border-[#222] rounded-xl p-5 shadow-sm">
-          <div className="text-xs font-mono font-bold tracking-widest text-yellow-500 uppercase">
-            PENDING
+        {/* ABSENT */}
+        <div className="bg-[#121212] border border-[#222] rounded-xl p-4 sm:p-5 shadow-sm">
+          <div className="text-[11px] font-mono font-bold tracking-widest text-red-500 uppercase">
+            ABSENT
           </div>
-          <div className="text-3xl font-black text-yellow-400 mt-1 font-mono">
+          <div className="text-2xl sm:text-3xl font-black text-red-400 mt-1 font-mono">
+            {stats.absent}
+          </div>
+        </div>
+
+        {/* PENDING ATTENDANCE */}
+        <div className="bg-[#121212] border border-[#222] rounded-xl p-4 sm:p-5 shadow-sm">
+          <div className="text-[11px] font-mono font-bold tracking-widest text-yellow-500 uppercase">
+            PENDING ATTENDANCE
+          </div>
+          <div className="text-2xl sm:text-3xl font-black text-yellow-400 mt-1 font-mono">
             {stats.pending}
-          </div>
-        </div>
-
-        <div className="bg-[#121212] border border-[#222] rounded-xl p-5 shadow-sm">
-          <div className="text-xs font-mono font-bold tracking-widest text-red-500 uppercase">
-            CANCELLED
-          </div>
-          <div className="text-3xl font-black text-red-400 mt-1 font-mono">
-            {stats.cancelled}
           </div>
         </div>
       </div>
 
+      {/* Event Attendance Gate Banner (Event Date: 18 September 2026) */}
+      <div className="bg-[#121212] border border-[#262626] rounded-xl p-5 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-start space-x-3.5">
+          <div className="p-3 rounded-lg bg-[#181818] border border-[#2e2e2e] text-[#e50914] shrink-0">
+            <Calendar className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-mono font-bold text-[#e50914] uppercase">
+                EVENT DATE: 18 SEPTEMBER 2026
+              </span>
+              {!isEventDayOrAfter && !attendanceOpen && (
+                <span className="text-[10px] px-2 py-0.5 rounded bg-yellow-950/60 text-yellow-400 border border-yellow-800/40 uppercase font-bold">
+                  ATTENDANCE NOT OPEN
+                </span>
+              )}
+            </div>
+            <p className="text-sm font-bold text-white mt-0.5">
+              {attendanceOpen
+                ? 'Attendance Register Mode is Active. Fast-marking enabled for on-spot verification.'
+                : isEventDayOrAfter
+                ? 'Event day has arrived. Open attendance to begin verification.'
+                : 'Attendance is scheduled for event day. Admin can explicitly open or override below.'}
+            </p>
+          </div>
+        </div>
+
+        <div>
+          {attendanceOpen ? (
+            <button
+              onClick={() => setAttendanceOpen(false)}
+              className="px-4 py-2.5 rounded-lg bg-[#1a1a1a] border border-[#333] hover:border-neutral-400 text-neutral-300 hover:text-white text-xs font-bold uppercase tracking-wider transition-all"
+            >
+              CLOSE ATTENDANCE MODE
+            </button>
+          ) : (
+            <button
+              onClick={() => setAttendanceOpen(true)}
+              className="px-5 py-3 rounded-lg bg-[#e50914] hover:bg-[#b80710] text-white text-xs font-bold tracking-wider uppercase shadow-[0_0_20px_rgba(229,9,20,0.4)] transition-all flex items-center space-x-2"
+            >
+              <UserCheck className="w-4 h-4" />
+              <span>OPEN REGISTER ATTENDANCE</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* QUICK ATTENDANCE SCANNER & SEARCH (Visible when Attendance Mode is open) */}
+      {attendanceOpen && (
+        <div className="bg-gradient-to-r from-[#161616] via-[#141414] to-[#161616] border-2 border-[#e50914]/50 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-4 animate-fadeIn">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <QrCode className="w-5 h-5 text-[#e50914]" />
+              <h3 className="text-base sm:text-lg font-black font-cinematic uppercase tracking-wider text-white">
+                FAST ATTENDANCE VERIFICATION
+              </h3>
+            </div>
+            <span className="text-[11px] font-mono text-neutral-400 uppercase">
+              Admin: <span className="text-[#e50914] font-bold">{currentAdmin}</span>
+            </span>
+          </div>
+
+          <div className="relative">
+            <Search className="w-5 h-5 text-neutral-500 absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={quickSearchInput}
+              onChange={(e) => setQuickSearchInput(e.target.value)}
+              placeholder="SCAN / ENTER TICKET ID (e.g. FF26-0001) or Register No..."
+              className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-[#0a0a0a] border border-[#333] text-white text-sm font-mono placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#e50914] focus:border-[#e50914]"
+              autoFocus
+            />
+          </div>
+
+          {/* Quick Result Match Card */}
+          {quickMatchedParticipant ? (
+            <div className="bg-[#1c1c1c] border border-[#333] rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fadeIn">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs font-mono font-extrabold text-[#e50914] bg-[#e50914]/10 px-2 py-0.5 rounded border border-[#e50914]/30">
+                    {quickMatchedParticipant.registrationId}
+                  </span>
+                  <span className="font-mono text-xs text-neutral-400">
+                    {quickMatchedParticipant.registerNumber}
+                  </span>
+                  <div>{getAttendanceBadge(quickMatchedParticipant.attendanceStatus)}</div>
+                </div>
+
+                <div className="text-base sm:text-lg font-extrabold text-white">
+                  {quickMatchedParticipant.name}
+                </div>
+
+                <div className="text-xs text-neutral-400">
+                  {quickMatchedParticipant.department} • Section {quickMatchedParticipant.section}
+                </div>
+
+                {quickMatchedParticipant.markedBy && (
+                  <div className="text-[11px] text-neutral-500">
+                    Marked by {quickMatchedParticipant.markedBy} on {quickMatchedParticipant.attendanceDate} at {quickMatchedParticipant.attendanceTime}
+                  </div>
+                )}
+              </div>
+
+              {/* Fast Action Buttons */}
+              <div className="flex items-center space-x-2 shrink-0">
+                <button
+                  onClick={() =>
+                    setConfirmModal({ reg: quickMatchedParticipant, targetStatus: 'PRESENT' })
+                  }
+                  disabled={quickMatchedParticipant.attendanceStatus === 'PRESENT'}
+                  className="px-4 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-xs font-bold tracking-wider uppercase transition-all flex items-center space-x-1.5 shadow-[0_0_15px_rgba(22,163,74,0.3)]"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>MARK PRESENT</span>
+                </button>
+
+                <button
+                  onClick={() =>
+                    setConfirmModal({ reg: quickMatchedParticipant, targetStatus: 'ABSENT' })
+                  }
+                  disabled={quickMatchedParticipant.attendanceStatus === 'ABSENT'}
+                  className="px-4 py-2.5 rounded-lg bg-[#2a2a2a] hover:bg-red-950/60 border border-neutral-700 hover:border-red-700 text-neutral-300 hover:text-red-300 disabled:opacity-50 text-xs font-bold tracking-wider uppercase transition-all"
+                >
+                  <UserX className="w-4 h-4" />
+                  <span>MARK ABSENT</span>
+                </button>
+              </div>
+            </div>
+          ) : quickSearchInput.trim() ? (
+            <div className="text-xs text-neutral-400 text-center py-2">
+              Participant not found for “{quickSearchInput}”.
+            </div>
+          ) : null}
+        </div>
+      )}
+
       {/* Search and Filters Bar */}
-      <div className="bg-[#121212] border border-[#222] rounded-xl p-4 sm:p-5 flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
+      <div className="bg-[#121212] border border-[#222] rounded-xl p-4 sm:p-5 flex flex-col md:flex-row items-stretch md:items-center gap-3 sm:gap-4">
         
-        {/* Search Input */}
+        {/* Search Field */}
         <div className="relative flex-1">
           <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by Name, Register No, or Reg ID..."
+            placeholder="Search by Student Name, Register Number, or Ticket ID..."
             className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-white text-xs placeholder-neutral-500 focus:outline-none focus:border-[#e50914]"
           />
         </div>
 
-        {/* Filter: Department */}
+        {/* Department Filter */}
         <select
           value={deptFilter}
           onChange={(e) => setDeptFilter(e.target.value)}
@@ -399,7 +691,7 @@ export default function Admin({ onNavigateHome }) {
           ))}
         </select>
 
-        {/* Filter: Section */}
+        {/* Section Filter */}
         <select
           value={sectionFilter}
           onChange={(e) => setSectionFilter(e.target.value)}
@@ -407,80 +699,124 @@ export default function Admin({ onNavigateHome }) {
         >
           <option value="ALL">All Sections</option>
           {EVENT_CONFIG.sections.map((sec, i) => (
-            <option key={i} value={sec}>Sec {sec}</option>
+            <option key={i} value={sec}>Section {sec}</option>
           ))}
         </select>
 
-        {/* Filter: Status */}
+        {/* Attendance Status Filter */}
         <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          value={attendanceFilter}
+          onChange={(e) => setAttendanceFilter(e.target.value)}
           className="px-3 py-2.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-white text-xs focus:outline-none focus:border-[#e50914]"
         >
           <option value="ALL">All Statuses</option>
-          <option value="CONFIRMED">Confirmed</option>
           <option value="PENDING">Pending</option>
-          <option value="CANCELLED">Cancelled</option>
+          <option value="PRESENT">Present</option>
+          <option value="ABSENT">Absent</option>
         </select>
       </div>
 
-      {/* Registrations Table */}
-      <div className="bg-[#121212] border border-[#242424] rounded-xl overflow-hidden shadow-xl">
+      {/* --------------------------------------------------------- */}
+      {/* DESKTOP TABLE VIEW (Visible on sm and up)                 */}
+      {/* --------------------------------------------------------- */}
+      <div className="hidden md:block bg-[#121212] border border-[#242424] rounded-xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-neutral-300">
             <thead className="bg-[#181818] text-neutral-400 uppercase font-mono tracking-wider text-[11px] border-b border-[#222]">
               <tr>
-                <th className="py-3.5 px-4">Reg ID</th>
-                <th className="py-3.5 px-4">Participant Name</th>
-                <th className="py-3.5 px-4">Register No</th>
-                <th className="py-3.5 px-4">Dept / Sec</th>
-                <th className="py-3.5 px-4">Contact</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4">Date</th>
+                <th className="py-3.5 px-4">Ticket ID</th>
+                <th className="py-3.5 px-4">Student Name</th>
+                <th className="py-3.5 px-4">Register Number</th>
+                <th className="py-3.5 px-4">Dept / Section</th>
+                <th className="py-3.5 px-4">Registration Date</th>
+                <th className="py-3.5 px-4">Attendance</th>
+                <th className="py-3.5 px-4">Attendance Time</th>
+                <th className="py-3.5 px-4">Marked By</th>
                 <th className="py-3.5 px-4 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1e1e1e]">
               {registrations.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="py-12 text-center text-neutral-500">
-                    {loading ? 'Loading registrations...' : 'No registrations found.'}
+                  <td colSpan="9" className="py-12 text-center text-neutral-500">
+                    {loading ? 'Loading participants...' : 'No participant records found.'}
                   </td>
                 </tr>
               ) : (
                 registrations.map((reg) => (
                   <tr key={reg.registrationId} className="hover:bg-[#161616] transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-[#e50914]">
+                    {/* Ticket ID */}
+                    <td className="py-3.5 px-4 font-mono font-extrabold text-[#e50914] whitespace-nowrap">
                       {reg.registrationId}
                     </td>
-                    <td className="py-3 px-4 font-semibold text-white">
+
+                    {/* Student Name */}
+                    <td className="py-3.5 px-4 font-bold text-white whitespace-nowrap">
                       {reg.name}
                     </td>
-                    <td className="py-3 px-4 font-mono">
+
+                    {/* Register Number */}
+                    <td className="py-3.5 px-4 font-mono whitespace-nowrap text-neutral-300">
                       {reg.registerNumber}
                     </td>
-                    <td className="py-3 px-4">
-                      <div className="font-medium text-white max-w-[160px] truncate">{reg.department}</div>
-                      <div className="text-[10px] text-neutral-500">Section {reg.section}</div>
+
+                    {/* Department & Section */}
+                    <td className="py-3.5 px-4">
+                      <div className="font-medium text-white max-w-[170px] truncate" title={reg.department}>
+                        {reg.department}
+                      </div>
+                      <div className="text-[10px] text-neutral-500 font-mono">Sec {reg.section}</div>
                     </td>
-                    <td className="py-3 px-4 font-mono text-[11px]">
-                      <div>{reg.phone}</div>
-                      <div className="text-neutral-500 truncate max-w-[140px]">{reg.email}</div>
+
+                    {/* Registration Date */}
+                    <td className="py-3.5 px-4 text-neutral-400 text-[11px] whitespace-nowrap">
+                      {reg.registrationDate || new Date(reg.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="py-3 px-4">
-                      {getStatusBadge(reg.status)}
+
+                    {/* Attendance Status */}
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      {getAttendanceBadge(reg.attendanceStatus)}
                     </td>
-                    <td className="py-3 px-4 text-neutral-400 text-[11px] whitespace-nowrap">
-                      {new Date(reg.createdAt).toLocaleDateString()}
+
+                    {/* Attendance Time */}
+                    <td className="py-3.5 px-4 text-neutral-400 font-mono text-[11px] whitespace-nowrap">
+                      {reg.attendanceTime ? `${reg.attendanceDate || ''} ${reg.attendanceTime}` : '-'}
                     </td>
-                    <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={() => setSelectedReg(reg)}
-                        className="p-1.5 rounded bg-[#202020] hover:bg-[#2c2c2c] text-neutral-200 hover:text-white transition-colors"
-                        title="View Participant Profile"
-                      >
-                        <Eye className="w-4 h-4 text-[#e50914]" />
-                      </button>
+
+                    {/* Marked By */}
+                    <td className="py-3.5 px-4 text-neutral-300 font-medium text-[11px] whitespace-nowrap">
+                      {reg.markedBy || '-'}
+                    </td>
+
+                    {/* Actions: View Details / Mark Present */}
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                      <div className="flex items-center justify-center space-x-1.5">
+                        <button
+                          onClick={() => setSelectedParticipant(reg)}
+                          className="p-1.5 rounded bg-[#202020] hover:bg-[#2c2c2c] text-neutral-200 hover:text-white transition-colors"
+                          title="View Participant Details"
+                        >
+                          <Eye className="w-4 h-4 text-[#e50914]" />
+                        </button>
+
+                        <button
+                          onClick={() => setConfirmModal({ reg, targetStatus: 'PRESENT' })}
+                          disabled={reg.attendanceStatus === 'PRESENT'}
+                          className="px-2 py-1 rounded bg-green-950/50 hover:bg-green-900/70 border border-green-800/60 text-green-400 disabled:opacity-40 text-[11px] font-bold"
+                          title="Mark Present"
+                        >
+                          Present
+                        </button>
+
+                        <button
+                          onClick={() => setConfirmModal({ reg, targetStatus: 'ABSENT' })}
+                          disabled={reg.attendanceStatus === 'ABSENT'}
+                          className="px-2 py-1 rounded bg-red-950/40 hover:bg-red-900/60 border border-red-800/50 text-red-400 disabled:opacity-40 text-[11px] font-bold"
+                          title="Mark Absent"
+                        >
+                          Absent
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -490,96 +826,296 @@ export default function Admin({ onNavigateHome }) {
         </div>
       </div>
 
-      {/* Detail & Status Modal */}
-      {selectedReg && (
+      {/* --------------------------------------------------------- */}
+      {/* MOBILE COMPACT CARDS VIEW (Clean, No Horizontal Scroll)  */}
+      {/* --------------------------------------------------------- */}
+      <div className="block md:hidden space-y-3">
+        {registrations.length === 0 ? (
+          <div className="bg-[#121212] border border-[#222] rounded-xl p-8 text-center text-neutral-500 text-xs">
+            {loading ? 'Loading participant records...' : 'No participant records found.'}
+          </div>
+        ) : (
+          registrations.map((reg) => (
+            <div
+              key={reg.registrationId}
+              className="bg-[#121212] border border-[#242424] rounded-xl p-4 space-y-3 shadow-md"
+            >
+              {/* Card Top: Ticket ID + Attendance Status */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-extrabold text-[#e50914]">
+                  {reg.registrationId}
+                </span>
+                <div>{getAttendanceBadge(reg.attendanceStatus)}</div>
+              </div>
+
+              {/* Student Name & Register Number */}
+              <div>
+                <div className="text-base font-bold text-white">{reg.name}</div>
+                <div className="text-xs font-mono text-neutral-400">{reg.registerNumber}</div>
+              </div>
+
+              {/* Dept, Section, Registration Date */}
+              <div className="text-xs text-neutral-400 space-y-0.5 border-t border-[#1e1e1e] pt-2">
+                <div>{reg.department} • Sec {reg.section}</div>
+                <div className="text-[11px] text-neutral-500">
+                  Registered: {reg.registrationDate || new Date(reg.createdAt).toLocaleDateString()}
+                </div>
+                {reg.markedBy && (
+                  <div className="text-[11px] text-neutral-400 font-mono pt-1">
+                    Marked by {reg.markedBy} ({reg.attendanceTime})
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Action Buttons: MARK PRESENT / ABSENT / DETAILS */}
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#1e1e1e]">
+                <button
+                  onClick={() => setConfirmModal({ reg, targetStatus: 'PRESENT' })}
+                  disabled={reg.attendanceStatus === 'PRESENT'}
+                  className="py-2 rounded-lg bg-green-950/60 hover:bg-green-900/80 border border-green-800/60 text-green-300 text-xs font-bold uppercase transition-all disabled:opacity-40 flex items-center justify-center space-x-1"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>PRESENT</span>
+                </button>
+
+                <button
+                  onClick={() => setConfirmModal({ reg, targetStatus: 'ABSENT' })}
+                  disabled={reg.attendanceStatus === 'ABSENT'}
+                  className="py-2 rounded-lg bg-red-950/50 hover:bg-red-900/70 border border-red-800/50 text-red-300 text-xs font-bold uppercase transition-all disabled:opacity-40 flex items-center justify-center space-x-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>ABSENT</span>
+                </button>
+
+                <button
+                  onClick={() => setSelectedParticipant(reg)}
+                  className="py-2 rounded-lg bg-[#1e1e1e] hover:bg-[#282828] border border-[#333] text-neutral-200 text-xs font-bold uppercase transition-all flex items-center justify-center space-x-1"
+                >
+                  <Eye className="w-3.5 h-3.5 text-[#e50914]" />
+                  <span>DETAILS</span>
+                </button>
+              </div>
+
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* --------------------------------------------------------- */}
+      {/* ATTENDANCE CONFIRMATION MODAL                             */}
+      {/* --------------------------------------------------------- */}
+      {confirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#141414] border border-[#2e2e2e] rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
+          <div className="bg-[#141414] border border-[#2e2e2e] rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+            <div className="w-12 h-12 rounded-full bg-[#1c1c1c] border border-[#333] flex items-center justify-center mx-auto text-[#e50914]">
+              {confirmModal.targetStatus === 'PRESENT' ? (
+                <UserCheck className="w-6 h-6 text-green-400" />
+              ) : (
+                <UserX className="w-6 h-6 text-red-400" />
+              )}
+            </div>
+
+            <div className="text-center space-y-1">
+              <h3 className="text-lg font-black font-cinematic uppercase text-white">
+                CONFIRM ATTENDANCE
+              </h3>
+              <p className="text-xs text-neutral-300">
+                Mark <span className="font-bold text-white">{confirmModal.reg.name}</span> (
+                <span className="font-mono text-[#e50914]">{confirmModal.reg.registrationId}</span>) as{' '}
+                <span
+                  className={`font-bold ${
+                    confirmModal.targetStatus === 'PRESENT' ? 'text-green-400' : 'text-red-400'
+                  }`}
+                >
+                  {confirmModal.targetStatus}
+                </span>?
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setConfirmModal(null)}
+                disabled={actionProcessing}
+                className="py-2.5 rounded-lg bg-[#202020] hover:bg-[#2a2a2a] text-neutral-300 text-xs font-bold uppercase tracking-wider transition-colors"
+              >
+                CANCEL
+              </button>
+
+              <button
+                type="button"
+                onClick={handleExecuteAttendance}
+                disabled={actionProcessing}
+                className={`py-2.5 rounded-lg text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md ${
+                  confirmModal.targetStatus === 'PRESENT'
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : 'bg-red-600 hover:bg-red-700'
+                }`}
+              >
+                {actionProcessing ? 'SAVING...' : 'CONFIRM'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --------------------------------------------------------- */}
+      {/* PARTICIPANT DETAILS MODAL                                 */}
+      {/* --------------------------------------------------------- */}
+      {selectedParticipant && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-[#141414] border border-[#2e2e2e] rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-[#242424] pb-4 mb-6">
+            <div className="flex items-center justify-between border-b border-[#242424] pb-4 mb-4">
               <div>
                 <span className="text-xs font-mono font-bold text-[#e50914] uppercase">
-                  {selectedReg.registrationId}
+                  TICKET ID: {selectedParticipant.registrationId}
                 </span>
                 <h3 className="text-xl font-black font-cinematic uppercase text-white">
-                  {selectedReg.name}
+                  {selectedParticipant.name}
                 </h3>
               </div>
               <button
-                onClick={() => setSelectedReg(null)}
+                onClick={() => setSelectedParticipant(null)}
                 className="p-2 rounded-lg bg-[#222] text-neutral-400 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Participant Details */}
-            <div className="space-y-3 text-xs bg-[#0d0d0d] p-5 rounded-xl border border-[#222] mb-6">
-              <div className="text-neutral-400 font-bold uppercase text-[10px] tracking-wider mb-2">
-                PARTICIPANT PROFILE
-              </div>
+            {/* Profile Field Rows */}
+            <div className="space-y-2.5 text-xs bg-[#0d0d0d] p-5 rounded-xl border border-[#222] mb-5">
               <div className="flex justify-between py-1 border-b border-[#1c1c1c]">
-                <span className="text-neutral-500">Reg Number:</span>
-                <span className="font-mono text-white font-bold">{selectedReg.registerNumber}</span>
+                <span className="text-neutral-500">Register Number:</span>
+                <span className="font-mono text-white font-bold">{selectedParticipant.registerNumber}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#1c1c1c]">
                 <span className="text-neutral-500">Department:</span>
-                <span className="text-white font-medium">{selectedReg.department}</span>
+                <span className="text-white font-medium">{selectedParticipant.department}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#1c1c1c]">
                 <span className="text-neutral-500">Section:</span>
-                <span className="text-white font-bold">{selectedReg.section}</span>
+                <span className="text-white font-bold">{selectedParticipant.section}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#1c1c1c]">
                 <span className="text-neutral-500">Phone:</span>
-                <span className="font-mono text-white">{selectedReg.phone}</span>
+                <span className="font-mono text-white">{selectedParticipant.phone}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#1c1c1c]">
                 <span className="text-neutral-500">Email:</span>
-                <span className="text-white">{selectedReg.email}</span>
+                <span className="text-white">{selectedParticipant.email}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#1c1c1c]">
-                <span className="text-neutral-500">Registered At:</span>
-                <span className="text-neutral-300">{new Date(selectedReg.createdAt).toLocaleString()}</span>
+                <span className="text-neutral-500">Registration Date:</span>
+                <span className="text-neutral-300">
+                  {selectedParticipant.registrationDate || new Date(selectedParticipant.createdAt).toLocaleString()}
+                </span>
               </div>
-              <div className="flex justify-between items-center pt-2">
-                <span className="text-neutral-500">Current Status:</span>
-                {getStatusBadge(selectedReg.status)}
+              <div className="flex justify-between py-1 border-b border-[#1c1c1c]">
+                <span className="text-neutral-500">Attendance Status:</span>
+                {getAttendanceBadge(selectedParticipant.attendanceStatus)}
               </div>
-            </div>
-
-            {/* Status Update Control */}
-            <div className="space-y-2">
-              <div className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">
-                CHANGE PARTICIPANT STATUS
+              <div className="flex justify-between py-1 border-b border-[#1c1c1c]">
+                <span className="text-neutral-500">Attendance Date/Time:</span>
+                <span className="font-mono text-white">
+                  {selectedParticipant.attendanceDate
+                    ? `${selectedParticipant.attendanceDate}, ${selectedParticipant.attendanceTime}`
+                    : 'Not marked yet'}
+                </span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={() => handleStatusChange(selectedReg.registrationId, 'CONFIRMED')}
-                  disabled={updatingStatus || selectedReg.status === 'CONFIRMED'}
-                  className="py-2.5 px-3 rounded-lg bg-green-950/40 hover:bg-green-900/60 border border-green-700/50 text-green-300 text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
-                >
-                  CONFIRMED
-                </button>
-
-                <button
-                  onClick={() => handleStatusChange(selectedReg.registrationId, 'PENDING')}
-                  disabled={updatingStatus || selectedReg.status === 'PENDING'}
-                  className="py-2.5 px-3 rounded-lg bg-yellow-950/40 hover:bg-yellow-900/60 border border-yellow-700/50 text-yellow-300 text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
-                >
-                  PENDING
-                </button>
-
-                <button
-                  onClick={() => handleStatusChange(selectedReg.registrationId, 'CANCELLED')}
-                  disabled={updatingStatus || selectedReg.status === 'CANCELLED'}
-                  className="py-2.5 px-3 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-700/50 text-red-300 text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
-                >
-                  CANCELLED
-                </button>
+              <div className="flex justify-between items-center pt-1">
+                <span className="text-neutral-500">Marked By:</span>
+                <span className="font-bold text-white">{selectedParticipant.markedBy || '-'}</span>
               </div>
             </div>
 
+            {/* Payment Proof Button (Securely served only to authenticated admins) */}
+            <div className="space-y-4">
+              <div className="border border-[#242424] rounded-xl p-4 bg-[#101010] flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-bold text-white uppercase">PAYMENT PROOF</div>
+                  <div className="text-[11px] text-neutral-400">
+                    {selectedParticipant.paymentProof ? 'Receipt uploaded' : 'Free Registration / No receipt attached'}
+                  </div>
+                </div>
+
+                {selectedParticipant.paymentProof ? (
+                  <button
+                    onClick={() => setViewPaymentModal(selectedParticipant.paymentProof)}
+                    className="px-3 py-2 rounded-lg bg-[#1e1e1e] hover:bg-[#282828] border border-[#333] text-xs font-bold text-white uppercase tracking-wider transition-colors flex items-center space-x-1.5"
+                  >
+                    <Eye className="w-3.5 h-3.5 text-[#e50914]" />
+                    <span>VIEW PAYMENT PROOF</span>
+                  </button>
+                ) : (
+                  <span className="text-[11px] text-neutral-500 italic">No proof file</span>
+                )}
+              </div>
+
+              {/* Quick status change inside modal */}
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                <button
+                  onClick={() => {
+                    setSelectedParticipant(null);
+                    setConfirmModal({ reg: selectedParticipant, targetStatus: 'PRESENT' });
+                  }}
+                  disabled={selectedParticipant.attendanceStatus === 'PRESENT'}
+                  className="py-2.5 rounded-lg bg-green-600 hover:bg-green-700 disabled:opacity-40 text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>MARK PRESENT</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setSelectedParticipant(null);
+                    setConfirmModal({ reg: selectedParticipant, targetStatus: 'ABSENT' });
+                  }}
+                  disabled={selectedParticipant.attendanceStatus === 'ABSENT'}
+                  className="py-2.5 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-40 text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-1.5"
+                >
+                  <X className="w-4 h-4" />
+                  <span>MARK ABSENT</span>
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* --------------------------------------------------------- */}
+      {/* SECURE PAYMENT PROOF IMAGE MODAL                          */}
+      {/* --------------------------------------------------------- */}
+      {viewPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+          <div className="bg-[#121212] border border-[#2a2a2a] rounded-2xl max-w-md w-full p-6 shadow-2xl relative space-y-4">
+            <div className="flex items-center justify-between border-b border-[#222] pb-3">
+              <div className="text-xs font-bold uppercase tracking-wider text-white">
+                UPLOADED PAYMENT RECEIPT
+              </div>
+              <button
+                onClick={() => setViewPaymentModal(null)}
+                className="p-1.5 rounded-lg bg-[#222] text-neutral-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="max-h-[60vh] overflow-auto rounded-lg bg-black flex items-center justify-center p-2 border border-[#222]">
+              <img
+                src={`/api/admin/payment-proof/${encodeURIComponent(viewPaymentModal)}?adminToken=${encodeURIComponent(adminToken)}`}
+                alt="Participant Payment Proof"
+                className="max-h-[55vh] object-contain rounded"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = '';
+                  e.target.alt = 'Receipt image preview not available.';
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
