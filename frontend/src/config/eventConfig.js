@@ -68,7 +68,7 @@ export const EVENT_CONFIG = {
     "B",
     "C",
     "D",
-    "Other"
+    "Null"
   ],
 
   // Highlights cards for About section

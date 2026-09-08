@@ -17,6 +17,9 @@ export default function Register({ onNavigateHome }) {
     email: ''
   });
 
+  // Custom typed department when "Other" is chosen
+  const [otherDepartment, setOtherDepartment] = useState('');
+
   // Validation errors
   const [errors, setErrors] = useState({});
 
@@ -51,6 +54,8 @@ export default function Register({ onNavigateHome }) {
 
     if (!formData.department) {
       newErrors.department = 'Please select your department.';
+    } else if (formData.department === 'Other' && !otherDepartment.trim()) {
+      newErrors.otherDepartment = 'Please enter your department name.';
     }
 
     if (!formData.section) {
@@ -86,6 +91,16 @@ export default function Register({ onNavigateHome }) {
     setIsSubmitting(true);
     setSubmissionError('');
 
+    const resolvedDepartment =
+      formData.department === 'Other' && otherDepartment.trim()
+        ? otherDepartment.trim()
+        : formData.department;
+
+    const submissionPayload = {
+      ...formData,
+      department: resolvedDepartment
+    };
+
     try {
       let finalData = null;
 
@@ -95,7 +110,7 @@ export default function Register({ onNavigateHome }) {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(formData)
+          body: JSON.stringify(submissionPayload)
         });
 
         if (response.ok) {
@@ -113,7 +128,7 @@ export default function Register({ onNavigateHome }) {
         // Fallback for static hosting (e.g. GitHub Pages)
         const passId = `FF26-${Math.floor(100000 + Math.random() * 900000)}`;
         const localRecord = {
-          ...formData,
+          ...submissionPayload,
           id: passId,
           ticketNumber: passId,
           passId: passId,
@@ -156,6 +171,7 @@ export default function Register({ onNavigateHome }) {
       phone: '',
       email: ''
     });
+    setOtherDepartment('');
     setErrors({});
     setSubmissionError('');
     setSuccessData(null);
@@ -173,8 +189,23 @@ export default function Register({ onNavigateHome }) {
     );
   }
 
+  // Resolved department for ReviewModal preview
+  const displayDepartment =
+    formData.department === 'Other' && otherDepartment.trim()
+      ? otherDepartment.trim()
+      : formData.department;
+
   return (
     <div className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      
+      {/* Review Modal */}
+      <ReviewModal
+        isOpen={showReview}
+        formData={{ ...formData, department: displayDepartment }}
+        onEdit={() => setShowReview(false)}
+        onConfirm={handleConfirmSubmit}
+        isSubmitting={isSubmitting}
+      />
       
       {/* Back button */}
       <button
@@ -272,7 +303,7 @@ export default function Register({ onNavigateHome }) {
               </div>
 
               {/* Field 3: Department */}
-              <div>
+              <div className={formData.department === 'Other' ? 'sm:col-span-2' : ''}>
                 <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300 mb-2">
                   DEPARTMENT <span className="text-[#e50914]">*</span>
                 </label>
@@ -298,6 +329,36 @@ export default function Register({ onNavigateHome }) {
                     <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                     <span>{errors.department}</span>
                   </p>
+                )}
+
+                {/* Explicit input to type custom department name when "Other" is chosen */}
+                {formData.department === 'Other' && (
+                  <div className="mt-3 animate-fadeIn">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#e50914] mb-1.5">
+                      ENTER YOUR DEPARTMENT NAME <span className="text-[#e50914]">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={otherDepartment}
+                      onChange={(e) => {
+                        setOtherDepartment(e.target.value);
+                        if (errors.otherDepartment) {
+                          setErrors((prev) => ({ ...prev, otherDepartment: '' }));
+                        }
+                      }}
+                      placeholder="e.g. Biotechnology, Robotics & Automation..."
+                      className={`w-full px-4 py-3 rounded-lg bg-[#151515] border text-white placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#e50914] transition-all ${
+                        errors.otherDepartment ? 'border-red-500 bg-red-950/10' : 'border-[#e50914]/40 focus:border-[#e50914]'
+                      }`}
+                      autoFocus
+                    />
+                    {errors.otherDepartment && (
+                      <p className="text-xs text-red-400 mt-1.5 flex items-center space-x-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{errors.otherDepartment}</span>
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -401,15 +462,6 @@ export default function Register({ onNavigateHome }) {
 
         </form>
       </div>
-
-      {/* Review Modal Step */}
-      <ReviewModal
-        isOpen={showReview}
-        formData={formData}
-        onEdit={() => setShowReview(false)}
-        onConfirm={handleConfirmSubmit}
-        isSubmitting={isSubmitting}
-      />
 
     </div>
   );
