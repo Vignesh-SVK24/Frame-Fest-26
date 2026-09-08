@@ -130,9 +130,9 @@ export default function Admin({ onNavigateHome }) {
     } catch (err) {
       // Fallback verification for demo or offline server
       const defaultPass = {
-        Satheesh: 'Satheesh@FF26',
-        Devi: 'Devi@FF26',
-        Vignesh: 'Vignesh@FF26'
+        Satheesh: 'aiml26hicet',
+        Devi: 'aiml26hicet',
+        Vignesh: 'aiml26hicet'
       };
       if (defaultPass[loginUsername] && defaultPass[loginUsername] === loginPassword) {
         const dummyToken = 'demo-token-' + Date.now();

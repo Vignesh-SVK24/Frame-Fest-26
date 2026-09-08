@@ -17,9 +17,9 @@ const PORT = process.env.PORT || 5001;
 
 // Configurable Admin Credentials (read securely from environment variables, never sent to frontend)
 const ADMIN_CREDENTIALS = {
-  Satheesh: process.env.ADMIN_PASS_SATHEESH || 'Satheesh@FF26',
-  Devi: process.env.ADMIN_PASS_DEVI || 'Devi@FF26',
-  Vignesh: process.env.ADMIN_PASS_VIGNESH || 'Vignesh@FF26'
+  Satheesh: process.env.ADMIN_PASS_SATHEESH || 'aiml26hicet',
+  Devi: process.env.ADMIN_PASS_DEVI || 'aiml26hicet',
+  Vignesh: process.env.ADMIN_PASS_VIGNESH || 'aiml26hicet'
 };
 
 // In-memory active admin sessions: token -> { adminName, expiresAt }
