@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Register from './pages/Register';
 import Admin from './pages/Admin';
 import BackgroundMusic from './components/BackgroundMusic';
+import GlobalBackgroundVideo from './components/GlobalBackgroundVideo';
 import { Clapperboard } from 'lucide-react';
 
 export default function App() {
@@ -39,7 +40,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#080808] text-white selection:bg-[#e50914] selection:text-white relative">
+    <div className="min-h-screen flex flex-col bg-transparent text-white selection:bg-[#e50914] selection:text-white relative">
+      {/* 0. Fullscreen Fixed Background Video */}
+      <GlobalBackgroundVideo />
+
       {/* Cinematic Top Red Ambient Line */}
       <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#e50914] to-transparent z-50 pointer-events-none opacity-80"></div>
 

@@ -18,7 +18,7 @@ export default function EventInfo() {
   };
 
   return (
-    <section id="about-section" className="py-20 bg-[#0c0c0c] border-t border-b border-[#1f1f1f] relative">
+    <section id="about-section" className="py-20 bg-[#0c0c0c]/70 backdrop-blur-sm border-t border-b border-[#1f1f1f]/60 relative">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -40,7 +40,7 @@ export default function EventInfo() {
           {EVENT_CONFIG.cards.map((card, idx) => (
             <div
               key={card.id}
-              className="group relative bg-[#141414] border border-[#242424] hover:border-[#e50914]/50 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1.5 shadow-lg hover:shadow-[0_10px_30px_rgba(229,9,20,0.15)] flex flex-col justify-between"
+              className="group relative bg-[#141414]/80 backdrop-blur-sm border border-[#242424]/80 hover:border-[#e50914]/50 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1.5 shadow-lg hover:shadow-[0_10px_30px_rgba(229,9,20,0.15)] flex flex-col justify-between"
             >
               {/* Card Number Watermark */}
               <div className="absolute top-4 right-4 text-xs font-mono font-bold text-neutral-400 opacity-40 group-hover:opacity-100 group-hover:text-[#e50914] transition-all">

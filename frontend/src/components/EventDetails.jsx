@@ -66,7 +66,7 @@ export default function EventDetails() {
   ];
 
   return (
-    <section id="event-details" className="py-20 bg-[#080808] relative border-b border-[#1f1f1f]">
+    <section id="event-details" className="py-20 bg-[#080808]/75 backdrop-blur-sm relative border-b border-[#1f1f1f]/50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section 1: Key Specifications */}
@@ -84,7 +84,7 @@ export default function EventDetails() {
           {details.map((item, idx) => (
             <div
               key={idx}
-              className={`bg-[#121212] border border-[#222222] rounded-xl p-6 transition-all hover:border-[#383838] shadow-md flex items-start space-x-4 ${
+              className={`bg-[#121212]/80 backdrop-blur-sm border border-[#222222]/80 rounded-xl p-6 transition-all hover:border-[#383838] shadow-md flex items-start space-x-4 ${
                 idx === 3 ? 'lg:col-span-2' : ''
               }`}
             >
@@ -128,7 +128,7 @@ export default function EventDetails() {
           {leadership.map((item, idx) => (
             <div
               key={idx}
-              className={`bg-[#121212] border border-[#222222] hover:border-[#e50914]/40 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 shadow-md flex flex-col justify-between ${item.orderClass}`}
+              className={`bg-[#121212]/80 backdrop-blur-sm border border-[#222222]/80 hover:border-[#e50914]/40 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 shadow-md flex flex-col justify-between ${item.orderClass}`}
             >
               <div>
                 {/* Header with Role & Icon */}

@@ -302,7 +302,7 @@ export default function Register({ onNavigateHome }) {
       <WhyJoinSection compact={true} />
 
       {/* Registration Card Form */}
-      <div className="bg-[#121212] border border-[#242424] rounded-2xl p-6 sm:p-10 shadow-2xl">
+      <div className="bg-[#121212]/85 backdrop-blur-md border border-[#242424]/80 rounded-2xl p-6 sm:p-10 shadow-2xl">
         <form onSubmit={handleOpenReview} noValidate className="space-y-6">
           
           {/* Section: Participant Details */}

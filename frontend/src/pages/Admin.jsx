@@ -556,7 +556,7 @@ export default function Admin({ onNavigateHome }) {
   if (!isAuthenticated) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
-        <div className="bg-[#121212] border border-[#262626] rounded-2xl max-w-md w-full p-8 shadow-2xl relative text-center">
+        <div className="bg-[#121212]/90 backdrop-blur-md border border-[#262626]/80 rounded-2xl max-w-md w-full p-8 shadow-2xl relative text-center">
           
           {/* Film Perforation accent */}
           <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#e50914] to-transparent mb-6"></div>

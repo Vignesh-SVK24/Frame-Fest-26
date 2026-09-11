@@ -4,7 +4,7 @@ import { EVENT_CONFIG } from '../config/eventConfig';
 
 export default function Footer({ onNavigateAdmin }) {
   return (
-    <footer className="bg-[#050505] border-t border-[#1c1c1c] py-12 text-neutral-400">
+    <footer className="bg-[#050505]/80 backdrop-blur-md border-t border-[#1c1c1c]/70 py-12 text-neutral-400">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
         
         {/* Film logo & title */}

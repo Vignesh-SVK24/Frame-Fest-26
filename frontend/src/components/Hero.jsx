@@ -1,82 +1,16 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { Clapperboard, Calendar, ChevronDown, Video as VideoIcon, Sliders, Film } from 'lucide-react';
 import { EVENT_CONFIG } from '../config/eventConfig';
 import WhyJoinSection from './WhyJoinSection';
 
 export default function Hero({ onRegisterClick, onExploreClick }) {
-  const videoRef = useRef(null);
-  const baseUrl = import.meta.env.BASE_URL || '/';
-  const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  const videoSrc = `${cleanBase}video/framefest-video-2.mp4`;
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    // Strict muted settings required by browser autoplay policies
-    video.muted = true;
-    video.defaultMuted = true;
-    video.setAttribute('muted', '');
-    video.setAttribute('playsinline', '');
-    video.setAttribute('webkit-playsinline', '');
-
-    const startPlayback = () => {
-      video.muted = true;
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {});
-      }
-    };
-
-    video.load();
-    video.addEventListener('canplay', startPlayback);
-    video.addEventListener('loadeddata', startPlayback);
-    startPlayback();
-
-    // Fallback: start playing upon first user interaction anywhere
-    const handleFirstInteraction = () => {
-      startPlayback();
-    };
-
-    window.addEventListener('click', handleFirstInteraction, { once: true });
-    window.addEventListener('touchstart', handleFirstInteraction, { once: true });
-    window.addEventListener('scroll', handleFirstInteraction, { once: true });
-
-    return () => {
-      video.removeEventListener('canplay', startPlayback);
-      video.removeEventListener('loadeddata', startPlayback);
-      window.removeEventListener('click', handleFirstInteraction);
-      window.removeEventListener('touchstart', handleFirstInteraction);
-      window.removeEventListener('scroll', handleFirstInteraction);
-    };
-  }, [videoSrc]);
-
   return (
-    <section className="relative min-h-[92vh] lg:min-h-screen flex items-center justify-center overflow-hidden bg-[#050505] py-16 lg:py-24">
-      {/* 1. Background Video Layer - Full Visibility */}
-      <video
-        ref={videoRef}
-        src={videoSrc}
-        autoPlay
-        muted
-        loop
-        playsInline
-        webkit-playsinline="true"
-        preload="auto"
-        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-0 opacity-100"
-      >
-        <source src={videoSrc} type="video/mp4" />
-        <source src={encodeURI(`${cleanBase}video/framefest video 2.mp4`)} type="video/mp4" />
-      </video>
-
-      {/* 2. Light Gradient Overlay - Keeps video visible while ensuring text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/20 to-[#080808] z-[1] pointer-events-none"></div>
-
+    <section className="relative min-h-[92vh] lg:min-h-screen flex items-center justify-center overflow-hidden bg-transparent py-16 lg:py-24">
       {/* Decorative Film Strip Borders (Left and Right) */}
       <div className="hidden lg:block absolute left-4 top-0 bottom-0 w-8 film-strip-vertical opacity-20 border-r border-[#222] z-[2] pointer-events-none"></div>
       <div className="hidden lg:block absolute right-4 top-0 bottom-0 w-8 film-strip-vertical opacity-20 border-l border-[#222] z-[2] pointer-events-none"></div>
 
-      {/* 3. Hero Content Layer */}
+      {/* Hero Content Layer */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         
         {/* Top Eyebrow Tag */}
