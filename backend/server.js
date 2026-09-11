@@ -34,10 +34,23 @@ const PORT = process.env.PORT || 5001;
 
 // Configurable Admin Credentials (read securely from environment variables, never sent to frontend)
 const ADMIN_CREDENTIALS = {
-  Satheesh: process.env.ADMIN_PASS_SATHEESH || 'aiml26hicet',
-  Devi: process.env.ADMIN_PASS_DEVI || 'aiml26hicet',
-  Vignesh: process.env.ADMIN_PASS_VIGNESH || 'aiml26hicet'
+  'Dr. D. Satheesh Kumar': process.env.ADMIN_PASS_SATHEESH || 'aiml26hicet',
+  'Ms. V. Devi': process.env.ADMIN_PASS_DEVI || 'aiml26hicet',
+  'Vignesh S': process.env.ADMIN_PASS_VIGNESH || 'aiml26hicet',
+  // Backward compatible aliases
+  'Satheesh': process.env.ADMIN_PASS_SATHEESH || 'aiml26hicet',
+  'Devi': process.env.ADMIN_PASS_DEVI || 'aiml26hicet',
+  'Vignesh': process.env.ADMIN_PASS_VIGNESH || 'aiml26hicet'
 };
+
+// Canonical mapping helper
+function getCanonicalAdminName(name) {
+  const n = (name || '').trim().toLowerCase();
+  if (n.includes('satheesh')) return 'Dr. D. Satheesh Kumar';
+  if (n.includes('devi')) return 'Ms. V. Devi';
+  if (n.includes('vignesh')) return 'Vignesh S';
+  return name;
+}
 
 // In-memory active admin sessions: token -> { adminName, expiresAt }
 const activeSessions = new Map();
@@ -485,17 +498,17 @@ app.post('/api/admin/login', (req, res) => {
     );
 
     if (validName && ADMIN_CREDENTIALS[validName] === password) {
-      matchedAdmin = validName;
+      matchedAdmin = getCanonicalAdminName(validName);
     }
   } else if (key) {
     for (const [name, pass] of Object.entries(ADMIN_CREDENTIALS)) {
       if (key === pass) {
-        matchedAdmin = name;
+        matchedAdmin = getCanonicalAdminName(name);
         break;
       }
     }
     if (!matchedAdmin && (key === 'admin2026' || key === process.env.ADMIN_KEY)) {
-      matchedAdmin = 'Vignesh';
+      matchedAdmin = 'Vignesh S';
     }
   }
 

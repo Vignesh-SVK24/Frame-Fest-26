@@ -33,7 +33,7 @@ export default function Admin({ onNavigateHome }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Login form state
-  const [loginUsername, setLoginUsername] = useState('Satheesh');
+  const [loginUsername, setLoginUsername] = useState('Dr. D. Satheesh Kumar');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -137,6 +137,9 @@ export default function Admin({ onNavigateHome }) {
     } catch (err) {
       // Fallback verification for demo or offline server
       const defaultPass = {
+        'Dr. D. Satheesh Kumar': 'aiml26hicet',
+        'Ms. V. Devi': 'aiml26hicet',
+        'Vignesh S': 'aiml26hicet',
         Satheesh: 'aiml26hicet',
         Devi: 'aiml26hicet',
         Vignesh: 'aiml26hicet'
@@ -586,9 +589,9 @@ export default function Admin({ onNavigateHome }) {
                 onChange={(e) => setLoginUsername(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg bg-[#181818] border border-[#333] text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#e50914] focus:border-[#e50914]"
               >
-                <option value="Satheesh">Satheesh</option>
-                <option value="Devi">Devi</option>
-                <option value="Vignesh">Vignesh</option>
+                <option value="Dr. D. Satheesh Kumar">Dr. D. Satheesh Kumar</option>
+                <option value="Ms. V. Devi">Ms. V. Devi</option>
+                <option value="Vignesh S">Vignesh S</option>
               </select>
             </div>
 
