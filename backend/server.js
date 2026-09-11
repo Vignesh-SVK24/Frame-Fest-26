@@ -823,6 +823,72 @@ app.get('/api/admin/payment-proof/:filename', requireAdmin, (req, res) => {
   res.sendFile(filePath);
 });
 
+// 9. Admin: Delete / Remove registered member (Protected - only authenticated admins)
+app.delete('/api/admin/registrations/:id', requireAdmin, async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ success: false, message: 'Member ID is required.' });
+  }
+
+  const normalizedId = id.trim().toUpperCase();
+  let deletedFromDb = false;
+
+  if (supabase) {
+    try {
+      // Find row in Supabase by registration_id or register_number
+      const { data: targetRows, error: findErr } = await supabase
+        .from('registrations')
+        .select('id, registration_id, name, register_number')
+        .or(`registration_id.ilike.${normalizedId},register_number.ilike.${normalizedId}`);
+
+      if (!findErr && targetRows && targetRows.length > 0) {
+        const rowId = targetRows[0].id;
+        const { error: delError } = await supabase
+          .from('registrations')
+          .delete()
+          .eq('id', rowId);
+
+        if (!delError) {
+          deletedFromDb = true;
+          console.log(`[Supabase] Member ${targetRows[0].registration_id} (${targetRows[0].name}) removed by admin ${req.admin.adminName || 'Admin'}`);
+        } else {
+          console.error('[Supabase] Delete error:', delError.message);
+        }
+      }
+    } catch (err) {
+      console.error('[Supabase] Delete exception:', err.message);
+    }
+  }
+
+  // Also sync with local registrations.json backup
+  const registrations = readRegistrations();
+  const initialCount = registrations.length;
+  const filtered = registrations.filter(
+    (r) =>
+      r.registrationId.toUpperCase() !== normalizedId &&
+      r.registerNumber.toUpperCase() !== normalizedId
+  );
+
+  let deletedFromLocal = false;
+  if (filtered.length < initialCount) {
+    saveRegistrations(filtered);
+    deletedFromLocal = true;
+  }
+
+  if (!deletedFromDb && !deletedFromLocal) {
+    return res.status(404).json({
+      success: false,
+      message: 'Participant not found or already removed.'
+    });
+  }
+
+  return res.json({
+    success: true,
+    message: `Member ${id} removed successfully.`
+  });
+});
+
+
 // --- PRODUCTION FRONTEND SERVING ---
 const FRONTEND_DIST = path.join(__dirname, '../frontend/dist');
 if (fs.existsSync(FRONTEND_DIST)) {

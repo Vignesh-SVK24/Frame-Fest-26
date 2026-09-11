@@ -20,7 +20,8 @@ import {
   Sparkles,
   ArrowRight,
   UserCheck,
-  UserX
+  UserX,
+  Trash2
 } from 'lucide-react';
 import { EVENT_CONFIG } from '../config/eventConfig';
 import { supabase } from '../config/supabaseClient';
@@ -62,6 +63,11 @@ export default function Admin({ onNavigateHome }) {
   const [confirmModal, setConfirmModal] = useState(null);
   const [actionProcessing, setActionProcessing] = useState(false);
   const [actionNotice, setActionNotice] = useState({ type: '', text: '' });
+
+  // Confirmation Modal state for Removing / Deleting Member
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
 
   // Participant Details Modal
   const [selectedParticipant, setSelectedParticipant] = useState(null);
@@ -375,6 +381,85 @@ export default function Admin({ onNavigateHome }) {
       });
     } finally {
       setActionProcessing(false);
+    }
+  };
+
+  // Execute Deleting / Removing a Member (Protected Admin Action)
+  const handleExecuteDeleteMember = async () => {
+    if (!deleteConfirmModal) return;
+
+    const targetReg = deleteConfirmModal;
+    setIsDeleting(true);
+    setActionNotice({ type: '', text: '' });
+
+    // 1. First attempt via backend API
+    try {
+      const res = await fetch(`/api/admin/registrations/${targetReg.registrationId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${adminToken}`
+        }
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success) {
+          setActionNotice({
+            type: 'success',
+            text: `Removed member ${targetReg.name} (${targetReg.registrationId}) successfully.`
+          });
+
+          setRegistrations((prev) =>
+            prev.filter((r) => r.registrationId !== targetReg.registrationId)
+          );
+
+          if (selectedParticipant && selectedParticipant.registrationId === targetReg.registrationId) {
+            setSelectedParticipant(null);
+          }
+
+          setDeleteConfirmModal(null);
+          fetchDashboardData();
+          setIsDeleting(false);
+          return;
+        }
+      }
+    } catch (apiErr) {
+      console.warn('API delete failed, deleting from Supabase directly:', apiErr);
+    }
+
+    // 2. Direct Supabase Delete Fallback
+    try {
+      const { error: delErr } = await supabase
+        .from('registrations')
+        .delete()
+        .eq('registration_id', targetReg.registrationId);
+
+      if (!delErr) {
+        setActionNotice({
+          type: 'success',
+          text: `Removed member ${targetReg.name} (${targetReg.registrationId}) successfully.`
+        });
+
+        setRegistrations((prev) =>
+          prev.filter((r) => r.registrationId !== targetReg.registrationId)
+        );
+
+        if (selectedParticipant && selectedParticipant.registrationId === targetReg.registrationId) {
+          setSelectedParticipant(null);
+        }
+
+        setDeleteConfirmModal(null);
+        fetchDashboardData();
+      } else {
+        throw delErr || new Error('Could not delete from Supabase');
+      }
+    } catch (err) {
+      setActionNotice({
+        type: 'error',
+        text: 'Failed to remove member. Please try again.'
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -935,7 +1020,7 @@ export default function Admin({ onNavigateHome }) {
                       {reg.markedBy || '-'}
                     </td>
 
-                    {/* Actions: View Details / Mark Present */}
+                    {/* Actions: View Details / Mark Present / Mark Absent / Remove */}
                     <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       <div className="flex items-center justify-center space-x-1.5">
                         <button
@@ -962,6 +1047,14 @@ export default function Admin({ onNavigateHome }) {
                           title="Mark Absent"
                         >
                           Absent
+                        </button>
+
+                        <button
+                          onClick={() => setDeleteConfirmModal(reg)}
+                          className="p-1.5 rounded bg-[#1c1212] hover:bg-red-950/70 border border-red-900/40 hover:border-red-700 text-red-400 hover:text-red-300 transition-colors"
+                          title="Remove Member"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
@@ -1014,8 +1107,8 @@ export default function Admin({ onNavigateHome }) {
                 )}
               </div>
 
-              {/* Mobile Action Buttons: MARK PRESENT / ABSENT / DETAILS */}
-              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#1e1e1e]">
+              {/* Mobile Action Buttons: MARK PRESENT / ABSENT / DETAILS / REMOVE */}
+              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#1e1e1e]">
                 <button
                   onClick={() => setConfirmModal({ reg, targetStatus: 'PRESENT' })}
                   disabled={reg.attendanceStatus === 'PRESENT'}
@@ -1040,6 +1133,14 @@ export default function Admin({ onNavigateHome }) {
                 >
                   <Eye className="w-3.5 h-3.5 text-[#e50914]" />
                   <span>DETAILS</span>
+                </button>
+
+                <button
+                  onClick={() => setDeleteConfirmModal(reg)}
+                  className="py-2 rounded-lg bg-[#1a1111] hover:bg-red-950/70 border border-red-900/50 hover:border-red-700 text-red-400 text-xs font-bold uppercase transition-all flex items-center justify-center space-x-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                  <span>REMOVE</span>
                 </button>
               </div>
 
@@ -1100,6 +1201,64 @@ export default function Admin({ onNavigateHome }) {
                 }`}
               >
                 {actionProcessing ? 'SAVING...' : 'CONFIRM'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --------------------------------------------------------- */}
+      {/* DELETE / REMOVE MEMBER CONFIRMATION MODAL                 */}
+      {/* --------------------------------------------------------- */}
+      {deleteConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-[#141414] border border-red-900/60 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+            <div className="w-12 h-12 rounded-full bg-red-950/60 border border-red-800/80 flex items-center justify-center mx-auto text-red-500">
+              <Trash2 className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-1">
+              <h3 className="text-lg font-black font-cinematic uppercase text-white tracking-wider">
+                REMOVE MEMBER
+              </h3>
+              <p className="text-xs text-neutral-300">
+                Are you sure you want to remove <span className="font-bold text-white">{deleteConfirmModal.name}</span> (
+                <span className="font-mono text-[#e50914]">{deleteConfirmModal.registrationId}</span>)?
+              </p>
+              <div className="bg-[#0c0c0c] border border-[#222] rounded-lg p-2.5 text-[11px] font-mono text-neutral-400 text-left space-y-1 my-2">
+                <div><span className="text-neutral-500">Reg No:</span> <span className="text-white">{deleteConfirmModal.registerNumber}</span></div>
+                <div><span className="text-neutral-500">Dept:</span> <span className="text-white truncate">{deleteConfirmModal.department}</span></div>
+                <div><span className="text-neutral-500">Section:</span> <span className="text-white">{deleteConfirmModal.section}</span></div>
+              </div>
+              <p className="text-[11px] text-red-400 font-medium">
+                This action is permanent and will remove their registration record.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmModal(null)}
+                disabled={isDeleting}
+                className="py-2.5 rounded-lg bg-[#202020] hover:bg-[#2a2a2a] text-neutral-300 text-xs font-bold uppercase tracking-wider transition-colors"
+              >
+                CANCEL
+              </button>
+
+              <button
+                type="button"
+                onClick={handleExecuteDeleteMember}
+                disabled={isDeleting}
+                className="py-2.5 rounded-lg bg-[#e50914] hover:bg-[#b80710] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(229,9,20,0.4)] flex items-center justify-center space-x-1.5"
+              >
+                {isDeleting ? (
+                  <span>REMOVING...</span>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>REMOVE</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -1224,6 +1383,21 @@ export default function Admin({ onNavigateHome }) {
                 >
                   <X className="w-4 h-4" />
                   <span>MARK ABSENT</span>
+                </button>
+              </div>
+
+              {/* Remove Member Button */}
+              <div className="pt-2 border-t border-[#242424]">
+                <button
+                  onClick={() => {
+                    const reg = selectedParticipant;
+                    setSelectedParticipant(null);
+                    setDeleteConfirmModal(reg);
+                  }}
+                  className="w-full py-2.5 rounded-lg bg-[#181010] hover:bg-red-950/60 border border-red-900/40 hover:border-red-700 text-red-400 hover:text-red-300 text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2 shadow-sm"
+                >
+                  <Trash2 className="w-4 h-4 text-red-500" />
+                  <span>REMOVE MEMBER FROM FEST</span>
                 </button>
               </div>
 
