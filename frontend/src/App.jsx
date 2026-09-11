@@ -44,46 +44,49 @@ export default function App() {
       {/* 0. Fullscreen Fixed Background Video */}
       <GlobalBackgroundVideo />
 
-      {/* Cinematic Top Red Ambient Line */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#e50914] to-transparent z-50 pointer-events-none opacity-80"></div>
+      {/* Foreground Website Content (Layer z-10) */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* Cinematic Top Red Ambient Line */}
+        <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#e50914] to-transparent z-50 pointer-events-none opacity-80"></div>
 
-      {/* Main Header */}
-      <Header
-        currentPage={currentPage}
-        setCurrentPage={navigateTo}
-      />
+        {/* Main Header */}
+        <Header
+          currentPage={currentPage}
+          setCurrentPage={navigateTo}
+        />
 
-      {/* Main View Area */}
-      <main className="flex-1">
+        {/* Main View Area */}
+        <main className="flex-1">
+          {currentPage === 'home' && (
+            <Home onNavigateRegister={() => navigateTo('register')} />
+          )}
+          {currentPage === 'register' && (
+            <Register onNavigateHome={() => navigateTo('home')} />
+          )}
+          {currentPage === 'admin' && (
+            <Admin onNavigateHome={() => navigateTo('home')} />
+          )}
+        </main>
+
+        {/* Sticky Mobile "Register Now" Bottom Bar (visible on Home on mobile) */}
         {currentPage === 'home' && (
-          <Home onNavigateRegister={() => navigateTo('register')} />
+          <div className="md:hidden fixed bottom-4 left-4 right-4 z-40">
+            <button
+              onClick={() => navigateTo('register')}
+              className="w-full py-3.5 px-4 rounded-xl bg-[#e50914] text-white font-extrabold tracking-wider uppercase text-sm shadow-[0_0_25px_rgba(229,9,20,0.6)] flex items-center justify-center space-x-2 border border-[#ff4d4d]"
+            >
+              <Clapperboard className="w-4 h-4" />
+              <span>REGISTER FOR FRAME FEST ’26</span>
+            </button>
+          </div>
         )}
-        {currentPage === 'register' && (
-          <Register onNavigateHome={() => navigateTo('home')} />
-        )}
-        {currentPage === 'admin' && (
-          <Admin onNavigateHome={() => navigateTo('home')} />
-        )}
-      </main>
 
-      {/* Sticky Mobile "Register Now" Bottom Bar (visible on Home on mobile) */}
-      {currentPage === 'home' && (
-        <div className="md:hidden fixed bottom-4 left-4 right-4 z-40">
-          <button
-            onClick={() => navigateTo('register')}
-            className="w-full py-3.5 px-4 rounded-xl bg-[#e50914] text-white font-extrabold tracking-wider uppercase text-sm shadow-[0_0_25px_rgba(229,9,20,0.6)] flex items-center justify-center space-x-2 border border-[#ff4d4d]"
-          >
-            <Clapperboard className="w-4 h-4" />
-            <span>REGISTER FOR FRAME FEST ’26</span>
-          </button>
-        </div>
-      )}
+        {/* Footer */}
+        <Footer onNavigateAdmin={() => navigateTo('admin')} />
 
-      {/* Footer */}
-      <Footer onNavigateAdmin={() => navigateTo('admin')} />
-
-      {/* Persistent Background Music Controller */}
-      <BackgroundMusic isHome={currentPage === 'home'} />
+        {/* Persistent Background Music Controller */}
+        <BackgroundMusic isHome={currentPage === 'home'} />
+      </div>
     </div>
   );
 }
