@@ -6,11 +6,28 @@ import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Supabase Cloud PostgreSQL Configuration
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://rmeiqhpubvmkvivuasvm.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_G2dT1ViN37Vy1SqP3HIgEw_wrnjSJk8';
+
+let supabase = null;
+try {
+  if (SUPABASE_URL && SUPABASE_KEY) {
+    supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: false }
+    });
+    console.log('[Supabase] Initialized cloud client successfully.');
+  }
+} catch (e) {
+  console.error('[Supabase] Initialization warning:', e.message);
+}
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -129,6 +146,99 @@ function generateRegistrationId(registrations) {
   return `FF26-${padded}`;
 }
 
+// Map snake_case Supabase row to frontend camelCase object
+function mapFromDb(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    registrationId: row.registration_id,
+    name: row.name,
+    registerNumber: row.register_number,
+    department: row.department,
+    section: row.section,
+    phone: row.phone,
+    email: row.email,
+    paymentProof: row.payment_proof,
+    createdAt: row.created_at,
+    registrationDate: row.registration_date,
+    attendanceStatus: row.attendance_status || 'PENDING',
+    attendanceDate: row.attendance_date,
+    attendanceTime: row.attendance_time,
+    markedBy: row.marked_by,
+    whatsappJoined: row.whatsapp_joined !== undefined ? row.whatsapp_joined : true,
+    status: row.status || 'CONFIRMED'
+  };
+}
+
+// Map frontend camelCase object to Supabase snake_case row
+function mapToDb(record) {
+  return {
+    registration_id: record.registrationId,
+    name: record.name,
+    register_number: record.registerNumber,
+    department: record.department,
+    section: record.section,
+    phone: record.phone,
+    email: record.email,
+    payment_proof: record.paymentProof || null,
+    created_at: record.createdAt || new Date().toISOString(),
+    registration_date: record.registrationDate,
+    attendance_status: record.attendanceStatus || 'PENDING',
+    attendance_date: record.attendanceDate || null,
+    attendance_time: record.attendanceTime || null,
+    marked_by: record.markedBy || null,
+    whatsapp_joined: record.whatsappJoined !== undefined ? record.whatsappJoined : true,
+    status: record.status || 'CONFIRMED'
+  };
+}
+
+// Helper: fetch all registrations from Supabase (with fallback to local JSON file)
+async function getRegistrationsAsync() {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('*')
+        .order('id', { ascending: true });
+
+      if (!error && Array.isArray(data)) {
+        const mapped = data.map(mapFromDb);
+        // Sync local JSON file as backup cache
+        try {
+          fs.writeFileSync(DB_FILE, JSON.stringify(mapped, null, 2), 'utf-8');
+        } catch (_) {}
+        return mapped;
+      } else if (error) {
+        console.error('[Supabase] Fetch error, falling back to local file:', error.message);
+      }
+    } catch (err) {
+      console.error('[Supabase] Fetch exception, falling back to local file:', err.message);
+    }
+  }
+  return readRegistrations();
+}
+
+// Helper: generate next registration ID using Supabase count
+async function generateRegistrationIdAsync() {
+  if (supabase) {
+    try {
+      const { count, error } = await supabase
+        .from('registrations')
+        .select('*', { count: 'exact', head: true });
+
+      if (!error && typeof count === 'number') {
+        const padded = String(count + 1).padStart(4, '0');
+        return `FF26-${padded}`;
+      }
+    } catch (err) {
+      console.error('[Supabase] Count query error:', err.message);
+    }
+  }
+  const localList = readRegistrations();
+  return generateRegistrationId(localList);
+}
+
+
 // Multer storage setup for payment proof uploads (if needed)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -190,19 +300,38 @@ app.get('/api/health', (req, res) => {
 });
 
 // Check if a register number is already taken
-app.get('/api/check-duplicate/:registerNumber', (req, res) => {
+app.get('/api/check-duplicate/:registerNumber', async (req, res) => {
   const { registerNumber } = req.params;
   if (!registerNumber) return res.json({ exists: false });
 
+  const normalized = registerNumber.trim().toUpperCase();
+
+  // Check in Supabase first
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('id, register_number')
+        .ilike('register_number', normalized);
+
+      if (!error && data) {
+        return res.json({ exists: data.length > 0 });
+      }
+    } catch (err) {
+      console.error('[Supabase] check-duplicate error:', err.message);
+    }
+  }
+
+  // Fallback to local file
   const registrations = readRegistrations();
   const exists = registrations.some(
-    (r) => r.registerNumber.trim().toUpperCase() === registerNumber.trim().toUpperCase()
+    (r) => r.registerNumber.trim().toUpperCase() === normalized
   );
   res.json({ exists });
 });
 
 // Participant registration endpoint
-app.post('/api/register', upload.single('paymentProof'), (req, res) => {
+app.post('/api/register', upload.single('paymentProof'), async (req, res) => {
   try {
     const { name, registerNumber, department, section, phone, email } = req.body;
 
@@ -232,23 +361,42 @@ app.post('/api/register', upload.single('paymentProof'), (req, res) => {
       return res.status(400).json({ success: false, message: 'Please enter a valid email address.' });
     }
 
-    const registrations = readRegistrations();
-
-    // Check duplicate register number
     const normalizedRegNo = registerNumber.trim().toUpperCase();
-    const duplicate = registrations.find(
+
+    // Check duplicate register number in Supabase
+    if (supabase) {
+      try {
+        const { data: dupData, error: dupError } = await supabase
+          .from('registrations')
+          .select('id, register_number')
+          .ilike('register_number', normalizedRegNo);
+
+        if (!dupError && dupData && dupData.length > 0) {
+          return res.status(409).json({
+            success: false,
+            message: 'This register number is already registered for Frame Fest ’26.'
+          });
+        }
+      } catch (err) {
+        console.error('[Supabase] Duplicate check error:', err.message);
+      }
+    }
+
+    // Fallback duplicate check in local file
+    const localRegistrations = readRegistrations();
+    const localDup = localRegistrations.find(
       (r) => r.registerNumber.trim().toUpperCase() === normalizedRegNo
     );
 
-    if (duplicate) {
+    if (localDup) {
       return res.status(409).json({
         success: false,
         message: 'This register number is already registered for Frame Fest ’26.'
       });
     }
 
-    // Generate unique Ticket ID
-    const registrationId = generateRegistrationId(registrations);
+    // Generate unique Ticket ID (FF26-XXXX)
+    const registrationId = await generateRegistrationIdAsync();
     const now = new Date();
     const formattedDate = formatReadableFullDateTime(now);
 
@@ -271,8 +419,29 @@ app.post('/api/register', upload.single('paymentProof'), (req, res) => {
       status: 'CONFIRMED'
     };
 
-    registrations.push(newRegistration);
-    saveRegistrations(registrations);
+    // Save to Supabase Cloud Database
+    if (supabase) {
+      try {
+        const dbPayload = mapToDb(newRegistration);
+        const { data: inserted, error: insertError } = await supabase
+          .from('registrations')
+          .insert([dbPayload])
+          .select();
+
+        if (insertError) {
+          console.error('[Supabase] Insert error:', insertError.message);
+        } else if (inserted && inserted.length > 0) {
+          newRegistration.id = inserted[0].id;
+          console.log(`[Supabase] Successfully saved registration ${registrationId} to cloud.`);
+        }
+      } catch (cloudErr) {
+        console.error('[Supabase] Insert exception:', cloudErr.message);
+      }
+    }
+
+    // Save to local file backup
+    localRegistrations.push(newRegistration);
+    saveRegistrations(localRegistrations);
 
     // Return sanitized response to public registrant (without admin-sensitive internals)
     return res.status(201).json({
@@ -366,7 +535,32 @@ app.get('/api/admin/me', requireAdmin, (req, res) => {
 });
 
 // 4. Admin Statistics (Calculated dynamically from real database)
-app.get('/api/admin/stats', requireAdmin, (req, res) => {
+app.get('/api/admin/stats', requireAdmin, async (req, res) => {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('attendance_status');
+
+      if (!error && Array.isArray(data)) {
+        const total = data.length;
+        const present = data.filter((r) => r.attendance_status === 'PRESENT').length;
+        const absent = data.filter((r) => r.attendance_status === 'ABSENT').length;
+        const pending = data.filter((r) => (r.attendance_status || 'PENDING') === 'PENDING').length;
+
+        return res.json({
+          total,
+          present,
+          absent,
+          pending
+        });
+      }
+    } catch (err) {
+      console.error('[Supabase] Stats fetch error:', err.message);
+    }
+  }
+
+  // Fallback to local file
   const registrations = readRegistrations();
   const total = registrations.length;
   const present = registrations.filter((r) => r.attendanceStatus === 'PRESENT').length;
@@ -382,8 +576,56 @@ app.get('/api/admin/stats', requireAdmin, (req, res) => {
 });
 
 // 5. Admin: List registered participants with search and filter
-app.get('/api/admin/registrations', requireAdmin, (req, res) => {
+app.get('/api/admin/registrations', requireAdmin, async (req, res) => {
   const { search, department, section, attendanceStatus } = req.query;
+
+  if (supabase) {
+    try {
+      let query = supabase.from('registrations').select('*');
+
+      // Department filter
+      if (department && department !== 'ALL') {
+        query = query.eq('department', department);
+      }
+
+      // Section filter
+      if (section && section !== 'ALL') {
+        query = query.eq('section', section);
+      }
+
+      // Attendance Status filter (PENDING, PRESENT, ABSENT)
+      if (attendanceStatus && attendanceStatus !== 'ALL') {
+        query = query.eq('attendance_status', attendanceStatus);
+      }
+
+      // Search filter
+      if (search) {
+        const q = search.trim();
+        query = query.or(
+          `registration_id.ilike.%${q}%,name.ilike.%${q}%,register_number.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`
+        );
+      }
+
+      // Order by ID
+      query = query.order('id', { ascending: true });
+
+      const { data, error } = await query;
+      if (!error && Array.isArray(data)) {
+        const mapped = data.map(mapFromDb);
+        return res.json({
+          success: true,
+          count: mapped.length,
+          data: mapped
+        });
+      } else if (error) {
+        console.error('[Supabase] Admin query error:', error.message);
+      }
+    } catch (err) {
+      console.error('[Supabase] Admin list exception:', err.message);
+    }
+  }
+
+  // Fallback to local file
   let list = readRegistrations();
 
   // Search filter (Ticket ID, Student Name, Register Number)
@@ -425,7 +667,7 @@ app.get('/api/admin/registrations', requireAdmin, (req, res) => {
 });
 
 // 6. Admin: Mark Attendance (PRESENT or ABSENT)
-app.post('/api/admin/attendance/:id', requireAdmin, (req, res) => {
+app.post('/api/admin/attendance/:id', requireAdmin, async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
@@ -436,54 +678,98 @@ app.post('/api/admin/attendance/:id', requireAdmin, (req, res) => {
     });
   }
 
+  const normalizedId = id.trim().toUpperCase();
+  const now = new Date();
+  const formattedDate = formatReadableDate(now);
+  const formattedTime = formatReadableTime(now);
+  const adminName = req.admin.adminName || 'Admin';
+
+  let updatedTarget = null;
+
+  if (supabase) {
+    try {
+      // Find row in Supabase by registration_id or register_number
+      const { data: foundRows, error: findError } = await supabase
+        .from('registrations')
+        .select('*')
+        .or(`registration_id.ilike.${normalizedId},register_number.ilike.${normalizedId}`);
+
+      if (findError) {
+        console.error('[Supabase] Search error on attendance:', findError.message);
+      } else if (foundRows && foundRows.length > 0) {
+        const targetRow = foundRows[0];
+        if (targetRow.attendance_status === status) {
+          return res.status(400).json({
+            success: false,
+            message: `This participant is already marked ${status}.`
+          });
+        }
+
+        const { data: updatedRows, error: updateError } = await supabase
+          .from('registrations')
+          .update({
+            attendance_status: status,
+            attendance_date: formattedDate,
+            attendance_time: formattedTime,
+            marked_by: adminName
+          })
+          .eq('id', targetRow.id)
+          .select();
+
+        if (!updateError && updatedRows && updatedRows.length > 0) {
+          updatedTarget = mapFromDb(updatedRows[0]);
+          console.log(`[Supabase] Marked ${updatedTarget.registrationId} as ${status} by ${adminName}`);
+        }
+      }
+    } catch (err) {
+      console.error('[Supabase] Attendance update exception:', err.message);
+    }
+  }
+
+  // Also sync with local registrations.json
   const registrations = readRegistrations();
-  // Search by registrationId (Ticket ID) or registerNumber
-  const target = registrations.find(
+  const localTarget = registrations.find(
     (r) =>
-      r.registrationId.toUpperCase() === id.trim().toUpperCase() ||
-      r.registerNumber.toUpperCase() === id.trim().toUpperCase()
+      r.registrationId.toUpperCase() === normalizedId ||
+      r.registerNumber.toUpperCase() === normalizedId
   );
 
-  if (!target) {
+  if (localTarget) {
+    if (!updatedTarget && localTarget.attendanceStatus === status) {
+      return res.status(400).json({
+        success: false,
+        message: `This participant is already marked ${status}.`
+      });
+    }
+
+    localTarget.attendanceStatus = status;
+    localTarget.attendanceDate = formattedDate;
+    localTarget.attendanceTime = formattedTime;
+    localTarget.markedBy = adminName;
+    localTarget.updatedAt = now.toISOString();
+    saveRegistrations(registrations);
+    if (!updatedTarget) {
+      updatedTarget = localTarget;
+    }
+  }
+
+  if (!updatedTarget) {
     return res.status(404).json({
       success: false,
       message: 'Participant not found.'
     });
   }
 
-  // Check if attendance is already marked with this exact status
-  if (target.attendanceStatus === status) {
-    return res.status(400).json({
-      success: false,
-      message: `This participant is already marked ${status}.`
-    });
-  }
-
-  const now = new Date();
-  target.attendanceStatus = status;
-  target.attendanceDate = formatReadableDate(now);
-  target.attendanceTime = formatReadableTime(now);
-  target.markedBy = req.admin.adminName || 'Admin';
-  target.updatedAt = now.toISOString();
-
-  const saved = saveRegistrations(registrations);
-  if (!saved) {
-    return res.status(500).json({
-      success: false,
-      message: 'Attendance could not be saved. Please try again.'
-    });
-  }
-
   return res.json({
     success: true,
     message: `Participant marked as ${status} successfully.`,
-    data: target
+    data: updatedTarget
   });
 });
 
 // 7. Admin: Export Attendance CSV (Does NOT include payment proof images)
-app.get('/api/admin/export-csv', requireAdmin, (req, res) => {
-  const registrations = readRegistrations();
+app.get('/api/admin/export-csv', requireAdmin, async (req, res) => {
+  const registrations = await getRegistrationsAsync();
 
   const headers = [
     'Ticket ID',

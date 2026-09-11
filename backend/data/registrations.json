@@ -90,5 +90,25 @@
     "attendanceTime": null,
     "markedBy": null,
     "paymentProof": null
+  },
+  {
+    "registrationId": "FF26-0006",
+    "name": "Supabase E2E Tester",
+    "registerNumber": "720725999999",
+    "department": "Computer Science and Engineering",
+    "section": "A",
+    "phone": "9876543210",
+    "email": "tester@framefest.com",
+    "paymentProof": null,
+    "createdAt": "2026-09-11T09:48:03.144Z",
+    "registrationDate": "11 Sept 2026, 03:18 PM",
+    "attendanceStatus": "PRESENT",
+    "attendanceDate": "11 Sept 2026",
+    "attendanceTime": "03:18 PM",
+    "markedBy": "Satheesh",
+    "whatsappJoined": true,
+    "status": "CONFIRMED",
+    "id": 6,
+    "updatedAt": "2026-09-11T09:48:06.252Z"
   }
 ]

@@ -23,6 +23,7 @@ import {
   UserX
 } from 'lucide-react';
 import { EVENT_CONFIG } from '../config/eventConfig';
+import { supabase } from '../config/supabaseClient';
 
 export default function Admin({ onNavigateHome }) {
   // Session / Auth state
@@ -170,10 +171,33 @@ export default function Admin({ onNavigateHome }) {
     onNavigateHome();
   };
 
+  // Helper to map snake_case Supabase rows
+  const mapDbRow = (r) => ({
+    id: r.id,
+    registrationId: r.registration_id,
+    name: r.name,
+    registerNumber: r.register_number,
+    department: r.department,
+    section: r.section,
+    phone: r.phone,
+    email: r.email,
+    paymentProof: r.payment_proof,
+    createdAt: r.created_at,
+    registrationDate: r.registration_date,
+    attendanceStatus: r.attendance_status || 'PENDING',
+    attendanceDate: r.attendance_date,
+    attendanceTime: r.attendance_time,
+    markedBy: r.marked_by,
+    whatsappJoined: r.whatsapp_joined !== undefined ? r.whatsapp_joined : true,
+    status: r.status || 'CONFIRMED'
+  });
+
   // Fetch registrations and stats
   const fetchDashboardData = async (token = adminToken) => {
     setLoading(true);
     setErrorMsg('');
+
+    // 1. First attempt via backend API
     try {
       const params = new URLSearchParams();
       if (searchTerm) params.append('search', searchTerm);
@@ -200,8 +224,44 @@ export default function Admin({ onNavigateHome }) {
           absent: statsJson.absent || 0,
           pending: statsJson.pending || 0
         });
+        setLoading(false);
+        return;
+      }
+    } catch (apiErr) {
+      console.warn('Backend API request failed, querying Supabase directly:', apiErr);
+    }
+
+    // 2. Direct Supabase Query Fallback
+    try {
+      let query = supabase.from('registrations').select('*');
+      if (deptFilter !== 'ALL') query = query.eq('department', deptFilter);
+      if (sectionFilter !== 'ALL') query = query.eq('section', sectionFilter);
+      if (attendanceFilter !== 'ALL') query = query.eq('attendance_status', attendanceFilter);
+      if (searchTerm) {
+        const q = searchTerm.trim();
+        query = query.or(
+          `registration_id.ilike.%${q}%,name.ilike.%${q}%,register_number.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`
+        );
+      }
+      query = query.order('id', { ascending: true });
+
+      const { data: rows, error: qErr } = await query;
+      if (!qErr && Array.isArray(rows)) {
+        const mapped = rows.map(mapDbRow);
+        setRegistrations(mapped);
+
+        // Fetch stats from Supabase
+        const { data: allRows } = await supabase.from('registrations').select('attendance_status');
+        if (allRows) {
+          setStats({
+            total: allRows.length,
+            present: allRows.filter((r) => r.attendance_status === 'PRESENT').length,
+            absent: allRows.filter((r) => r.attendance_status === 'ABSENT').length,
+            pending: allRows.filter((r) => (r.attendance_status || 'PENDING') === 'PENDING').length
+          });
+        }
       } else {
-        throw new Error('Failed to load admin data');
+        throw qErr || new Error('Failed to load from Supabase');
       }
     } catch (err) {
       console.error(err);
@@ -226,6 +286,7 @@ export default function Admin({ onNavigateHome }) {
     setActionProcessing(true);
     setActionNotice({ type: '', text: '' });
 
+    // 1. First attempt via backend API
     try {
       const res = await fetch(`/api/admin/attendance/${reg.registrationId}`, {
         method: 'POST',
@@ -236,33 +297,76 @@ export default function Admin({ onNavigateHome }) {
         body: JSON.stringify({ status: targetStatus })
       });
 
-      const json = await res.json();
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success) {
+          setActionNotice({
+            type: 'success',
+            text: `Marked ${reg.name} (${reg.registrationId}) as ${targetStatus}.`
+          });
 
-      if (res.ok && json.success) {
+          setRegistrations((prev) =>
+            prev.map((r) =>
+              r.registrationId === reg.registrationId ? json.data : r
+            )
+          );
+
+          if (selectedParticipant && selectedParticipant.registrationId === reg.registrationId) {
+            setSelectedParticipant(json.data);
+          }
+
+          setConfirmModal(null);
+          fetchDashboardData();
+          setQuickSearchInput('');
+          setActionProcessing(false);
+          return;
+        }
+      }
+    } catch (apiErr) {
+      console.warn('API update failed, updating Supabase directly:', apiErr);
+    }
+
+    // 2. Direct Supabase Update Fallback
+    try {
+      const now = new Date();
+      const options = { day: '2-digit', month: 'short', year: 'numeric' };
+      const formattedDate = now.toLocaleDateString('en-GB', options);
+      const timeOpts = { hour: '2-digit', minute: '2-digit', hour12: true };
+      const formattedTime = now.toLocaleTimeString('en-US', timeOpts);
+
+      const { data: updatedRows, error: updErr } = await supabase
+        .from('registrations')
+        .update({
+          attendance_status: targetStatus,
+          attendance_date: formattedDate,
+          attendance_time: formattedTime,
+          marked_by: currentAdmin || 'Admin'
+        })
+        .eq('registration_id', reg.registrationId)
+        .select();
+
+      if (!updErr && updatedRows && updatedRows.length > 0) {
+        const updated = mapDbRow(updatedRows[0]);
         setActionNotice({
           type: 'success',
           text: `Marked ${reg.name} (${reg.registrationId}) as ${targetStatus}.`
         });
 
-        // Update local list and stats immediately
         setRegistrations((prev) =>
           prev.map((r) =>
-            r.registrationId === reg.registrationId ? json.data : r
+            r.registrationId === reg.registrationId ? updated : r
           )
         );
 
         if (selectedParticipant && selectedParticipant.registrationId === reg.registrationId) {
-          setSelectedParticipant(json.data);
+          setSelectedParticipant(updated);
         }
 
         setConfirmModal(null);
         fetchDashboardData();
         setQuickSearchInput('');
       } else {
-        setActionNotice({
-          type: 'error',
-          text: json.message || 'Attendance could not be saved. Please try again.'
-        });
+        throw updErr || new Error('Could not update Supabase');
       }
     } catch (err) {
       setActionNotice({
@@ -276,7 +380,50 @@ export default function Admin({ onNavigateHome }) {
 
   // Export CSV
   const handleExportCsv = () => {
-    window.open(`/api/admin/export-csv?adminToken=${encodeURIComponent(adminToken)}`, '_blank');
+    try {
+      const headers = [
+        'Ticket ID',
+        'Student Name',
+        'Register Number',
+        'Department',
+        'Section',
+        'Registration Date',
+        'Attendance Status',
+        'Attendance Date',
+        'Attendance Time',
+        'Marked By'
+      ];
+
+      const escapeCsv = (val) => {
+        if (val === null || val === undefined) return '""';
+        const str = String(val).replace(/"/g, '""');
+        return `"${str}"`;
+      };
+
+      const rows = registrations.map((r) => [
+        escapeCsv(r.registrationId),
+        escapeCsv(r.name),
+        escapeCsv(r.registerNumber),
+        escapeCsv(r.department),
+        escapeCsv(r.section),
+        escapeCsv(r.registrationDate || r.createdAt || ''),
+        escapeCsv(r.attendanceStatus || 'PENDING'),
+        escapeCsv(r.attendanceDate || '-'),
+        escapeCsv(r.attendanceTime || '-'),
+        escapeCsv(r.markedBy || '-')
+      ]);
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', 'frame_fest_26_attendance.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch {
+      window.open(`/api/admin/export-csv?adminToken=${encodeURIComponent(adminToken)}`, '_blank');
+    }
   };
 
   // Quick matched participant for Attendance Quick Scan
