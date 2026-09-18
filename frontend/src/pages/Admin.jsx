@@ -44,8 +44,8 @@ export default function Admin({ onNavigateHome }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Attendance Mode state (Event Date: 18 September 2026)
-  const eventDateObj = useMemo(() => new Date('2026-09-18T00:00:00'), []);
+  // Attendance Mode state (Event Date: 22 September 2026)
+  const eventDateObj = useMemo(() => new Date('2026-09-22T00:00:00'), []);
   const isEventDayOrAfter = useMemo(() => new Date() >= eventDateObj, [eventDateObj]);
   const [attendanceOpen, setAttendanceOpen] = useState(false);
 
@@ -763,7 +763,7 @@ export default function Admin({ onNavigateHome }) {
         </div>
       </div>
 
-      {/* Event Attendance Gate Banner (Event Date: 18 September 2026) */}
+      {/* Event Attendance Gate Banner (Event Date: 22 September 2026) */}
       <div className="bg-[#121212] border border-[#262626] rounded-xl p-5 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-start space-x-3.5">
           <div className="p-3 rounded-lg bg-[#181818] border border-[#2e2e2e] text-[#e50914] shrink-0">
@@ -772,7 +772,7 @@ export default function Admin({ onNavigateHome }) {
           <div>
             <div className="flex items-center space-x-2">
               <span className="text-xs font-mono font-bold text-[#e50914] uppercase">
-                EVENT DATE: 18 SEPTEMBER 2026
+                EVENT DATE: {EVENT_CONFIG.date.toUpperCase()}
               </span>
               {!isEventDayOrAfter && !attendanceOpen && (
                 <span className="text-[10px] px-2 py-0.5 rounded bg-yellow-950/60 text-yellow-400 border border-yellow-800/40 uppercase font-bold">

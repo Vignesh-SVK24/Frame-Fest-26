@@ -13,7 +13,7 @@ export default function EventDetails() {
     {
       label: "DATE",
       value: EVENT_CONFIG.date,
-      subvalue: "Friday • Full Day",
+      subvalue: "Tuesday • Full Day",
       icon: <Calendar className="w-5 h-5 text-[#e50914]" />
     },
     {

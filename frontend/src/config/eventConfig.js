@@ -8,8 +8,8 @@ export const EVENT_CONFIG = {
   category: "Film & Editing Fest",
   subtitle: "A FILM & EDITING FEST",
   tagline: "SHOW YOUR SKILLS. CREATE IMPACT.",
-  date: "18 September 2026",
-  fullDate: "Friday, 18 September 2026",
+  date: "22 September 2026",
+  fullDate: "Tuesday, 22 September 2026",
   description: "Showcase your creativity, editing skills and visual storytelling at Frame Fest ’26.",
   aboutDescription: "Frame Fest ’26 is a film and editing fest designed to showcase creativity, storytelling and digital media skills.",
   

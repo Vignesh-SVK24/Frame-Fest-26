@@ -169,7 +169,7 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
       // Footer
       ctx.fillStyle = '#777777';
       ctx.font = '12px sans-serif';
-      ctx.fillText('Present this pass at the HICET Campus registration desk on 18 September 2026.', width / 2, 970);
+      ctx.fillText(`Present this pass at the HICET Campus registration desk on ${EVENT_CONFIG.date}.`, width / 2, 970);
       ctx.fillText('© 2026 FRAME FEST ’26 • Department of Artificial Intelligence & Machine Learning', width / 2, 995);
 
       // Trigger download
