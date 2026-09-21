@@ -154,8 +154,19 @@ function saveRegistrations(registrations) {
 
 // Helper: generate registration ID
 function generateRegistrationId(registrations) {
-  const count = registrations.length + 1;
-  const padded = String(count).padStart(4, '0');
+  let maxNum = 0;
+  if (Array.isArray(registrations)) {
+    for (const r of registrations) {
+      const regId = r.registrationId || r.registration_id || '';
+      const m = regId.match(/FF26-(\d+)/i);
+      if (m) {
+        const n = parseInt(m[1], 10);
+        if (!isNaN(n) && n > maxNum) maxNum = n;
+      }
+    }
+  }
+  const nextNum = Math.max(maxNum, 27) + 1;
+  const padded = String(nextNum).padStart(4, '0');
   return `FF26-${padded}`;
 }
 
@@ -231,20 +242,28 @@ async function getRegistrationsAsync() {
   return readRegistrations();
 }
 
-// Helper: generate next registration ID using Supabase count
+// Helper: generate next registration ID using Supabase max registration_id
 async function generateRegistrationIdAsync() {
   if (supabase) {
     try {
-      const { count, error } = await supabase
+      const { data, error } = await supabase
         .from('registrations')
-        .select('*', { count: 'exact', head: true });
+        .select('registration_id');
 
-      if (!error && typeof count === 'number') {
-        const padded = String(count + 1).padStart(4, '0');
-        return `FF26-${padded}`;
+      if (!error && Array.isArray(data)) {
+        let maxNum = 0;
+        for (const row of data) {
+          const m = (row.registration_id || '').match(/FF26-(\d+)/i);
+          if (m) {
+            const n = parseInt(m[1], 10);
+            if (!isNaN(n) && n > maxNum) maxNum = n;
+          }
+        }
+        const nextNum = Math.max(maxNum, 27) + 1;
+        return `FF26-${String(nextNum).padStart(4, '0')}`;
       }
     } catch (err) {
-      console.error('[Supabase] Count query error:', err.message);
+      console.error('[Supabase] Max ticket query error:', err.message);
     }
   }
   const localList = readRegistrations();
@@ -409,7 +428,7 @@ app.post('/api/register', upload.single('paymentProof'), async (req, res) => {
     }
 
     // Generate unique Ticket ID (FF26-XXXX)
-    const registrationId = await generateRegistrationIdAsync();
+    let registrationId = await generateRegistrationIdAsync();
     const now = new Date();
     const formattedDate = formatReadableFullDateTime(now);
 
@@ -435,20 +454,60 @@ app.post('/api/register', upload.single('paymentProof'), async (req, res) => {
     // Save to Supabase Cloud Database
     if (supabase) {
       try {
-        const dbPayload = mapToDb(newRegistration);
-        const { data: inserted, error: insertError } = await supabase
-          .from('registrations')
-          .insert([dbPayload])
-          .select();
+        let inserted = null;
+        let insertError = null;
 
-        if (insertError) {
-          console.error('[Supabase] Insert error:', insertError.message);
-        } else if (inserted && inserted.length > 0) {
+        // Try insert with automatic collision resolution loop (up to 5 attempts)
+        for (let attempt = 0; attempt < 5; attempt++) {
+          newRegistration.registrationId = registrationId;
+          const dbPayload = mapToDb(newRegistration);
+          const res = await supabase
+            .from('registrations')
+            .insert([dbPayload])
+            .select();
+
+          if (!res.error && res.data && res.data.length > 0) {
+            inserted = res.data;
+            break;
+          }
+
+          insertError = res.error;
+          if (res.error && (res.error.code === '23505' || res.error.message?.includes('duplicate key'))) {
+            if (res.error.message?.includes('register_number')) {
+              return res.status(409).json({
+                success: false,
+                message: 'This register number is already registered for Frame Fest ’26.'
+              });
+            }
+            console.warn(`[Supabase] Ticket ID ${registrationId} collision, incrementing to next number...`);
+            const numMatch = registrationId.match(/FF26-(\d+)/i);
+            const currentNum = numMatch ? parseInt(numMatch[1], 10) : 27;
+            registrationId = `FF26-${String(currentNum + 1).padStart(4, '0')}`;
+          } else {
+            // Non-collision fatal DB error
+            break;
+          }
+        }
+
+        if (insertError && !inserted) {
+          console.error('[Supabase] Insert failed:', insertError.message);
+          return res.status(500).json({
+            success: false,
+            message: 'Database error while saving registration: ' + insertError.message
+          });
+        }
+
+        if (inserted && inserted.length > 0) {
           newRegistration.id = inserted[0].id;
+          newRegistration.registrationId = registrationId;
           console.log(`[Supabase] Successfully saved registration ${registrationId} to cloud.`);
         }
       } catch (cloudErr) {
         console.error('[Supabase] Insert exception:', cloudErr.message);
+        return res.status(500).json({
+          success: false,
+          message: 'Server error while saving registration: ' + cloudErr.message
+        });
       }
     }
 

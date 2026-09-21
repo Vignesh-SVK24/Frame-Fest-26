@@ -141,38 +141,71 @@ export default function Register({ onNavigateHome }) {
             return;
           }
 
-          // Count existing records to generate next sequential Ticket ID
-          const { count } = await supabase
+          // Query existing records to find the MAXIMUM sequential Ticket ID
+          const { data: allRegs, error: fetchErr } = await supabase
             .from('registrations')
-            .select('*', { count: 'exact', head: true });
+            .select('registration_id');
 
-          const nextNum = (typeof count === 'number' ? count : 5) + 1;
-          const passId = `FF26-${String(nextNum).padStart(4, '0')}`;
+          let maxNum = 0;
+          if (!fetchErr && Array.isArray(allRegs)) {
+            for (const r of allRegs) {
+              const m = (r.registration_id || '').match(/FF26-(\d+)/i);
+              if (m) {
+                const n = parseInt(m[1], 10);
+                if (!isNaN(n) && n > maxNum) maxNum = n;
+              }
+            }
+          }
+
+          let candidateNum = Math.max(maxNum, 27) + 1;
           const now = new Date();
           const formattedDate = `${now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
 
-          const dbRow = {
-            registration_id: passId,
-            name: formData.name.trim(),
-            register_number: formData.registerNumber.trim().toUpperCase(),
-            department: resolvedDepartment,
-            section: formData.section.trim(),
-            phone: formData.phone.replace(/\D/g, ''),
-            email: formData.email.trim().toLowerCase(),
-            created_at: now.toISOString(),
-            registration_date: formattedDate,
-            attendance_status: 'PENDING',
-            whatsapp_joined: true,
-            status: 'CONFIRMED'
-          };
+          let insertedRecord = null;
+          let passId = '';
 
-          const { data: inserted, error: insertError } = await supabase
-            .from('registrations')
-            .insert([dbRow])
-            .select();
+          for (let attempt = 0; attempt < 5; attempt++) {
+            passId = `FF26-${String(candidateNum).padStart(4, '0')}`;
+            const dbRow = {
+              registration_id: passId,
+              name: formData.name.trim(),
+              register_number: formData.registerNumber.trim().toUpperCase(),
+              department: resolvedDepartment,
+              section: formData.section.trim(),
+              phone: formData.phone.replace(/\D/g, ''),
+              email: formData.email.trim().toLowerCase(),
+              created_at: now.toISOString(),
+              registration_date: formattedDate,
+              attendance_status: 'PENDING',
+              whatsapp_joined: true,
+              status: 'CONFIRMED'
+            };
 
-          if (insertError) {
-            throw insertError;
+            const { data: inserted, error: insertError } = await supabase
+              .from('registrations')
+              .insert([dbRow])
+              .select();
+
+            if (!insertError && inserted && inserted.length > 0) {
+              insertedRecord = inserted[0];
+              break;
+            }
+
+            if (insertError && (insertError.code === '23505' || insertError.message?.includes('duplicate key'))) {
+              if (insertError.message?.includes('register_number')) {
+                setSubmissionError('This register number is already registered for Frame Fest ’26.');
+                setShowReview(false);
+                setIsSubmitting(false);
+                return;
+              }
+              candidateNum++;
+            } else {
+              throw insertError;
+            }
+          }
+
+          if (!insertedRecord) {
+            throw new Error('Could not assign ticket ID, please try again.');
           }
 
           finalData = {
@@ -184,6 +217,12 @@ export default function Register({ onNavigateHome }) {
             status: 'CONFIRMED'
           };
         } catch (dbErr) {
+          if (dbErr?.code === '23505' && dbErr?.message?.includes('register_number')) {
+            setSubmissionError('This register number is already registered for Frame Fest ’26.');
+            setShowReview(false);
+            setIsSubmitting(false);
+            return;
+          }
           console.warn('Direct Supabase write issue, using local storage backup:', dbErr);
           const passId = `FF26-${Math.floor(100000 + Math.random() * 900000)}`;
           const localRecord = {
