@@ -38,7 +38,7 @@ export default function PaymentSection({
       {/* Section Header */}
       <div>
         <h3 className="text-xl font-black font-cinematic uppercase tracking-wider text-white flex items-center space-x-2">
-          <QrCode className="w-5 h-5 text-[#e50914]" />
+          <QrCode className="w-5 h-5 text-[#c084fc]" />
           <span>PAYMENT DETAILS</span>
         </h3>
         <p className="text-sm text-neutral-400 mt-1">
@@ -47,7 +47,7 @@ export default function PaymentSection({
       </div>
 
       {/* QR Code Card & Instructions */}
-      <div className="bg-[#121212] border border-[#242424] rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
+      <div className="bg-[#130f24] border border-[#271e46] rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
         
         {/* Payment QR Code Box */}
         <div className="w-44 h-44 bg-white p-2.5 rounded-xl shadow-lg shrink-0 flex items-center justify-center border-2 border-neutral-300">
@@ -60,7 +60,7 @@ export default function PaymentSection({
 
         {/* Payment Instructions */}
         <div className="flex-1 text-center sm:text-left space-y-3">
-          <div className="inline-block px-2.5 py-1 rounded bg-[#e50914]/15 border border-[#e50914]/30 text-xs font-bold text-[#e50914] uppercase tracking-wider">
+          <div className="inline-block px-2.5 py-1 rounded bg-[#8b5cf6]/15 border border-[#8b5cf6]/40 text-xs font-bold text-[#c084fc] uppercase tracking-wider">
             REGISTRATION PAYMENT
           </div>
 
@@ -71,13 +71,13 @@ export default function PaymentSection({
           {/* Configurable Payment Amount if defined */}
           {EVENT_CONFIG.paymentAmount && (
             <div className="text-sm font-semibold text-white">
-              Fee: <span className="text-[#e50914] font-bold text-lg">{EVENT_CONFIG.paymentAmount}</span>
+              Fee: <span className="text-[#c084fc] font-bold text-lg">{EVENT_CONFIG.paymentAmount}</span>
             </div>
           )}
 
           {/* UPI ID block with copy */}
           {EVENT_CONFIG.upiId && (
-            <div className="inline-flex items-center space-x-2 bg-[#1b1b1b] border border-[#333] px-3 py-1.5 rounded-lg text-xs font-mono text-neutral-300">
+            <div className="inline-flex items-center space-x-2 bg-[#1b1530] border border-[#34275c] px-3 py-1.5 rounded-lg text-xs font-mono text-neutral-300">
               <span className="text-neutral-500">UPI ID:</span>
               <span className="text-white font-bold">{EVENT_CONFIG.upiId}</span>
               <button
@@ -101,7 +101,7 @@ export default function PaymentSection({
       {/* Payment Proof Upload Area */}
       <div>
         <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300 mb-2">
-          PAYMENT PROOF <span className="text-[#e50914]">*</span>
+          PAYMENT PROOF <span className="text-[#c084fc]">*</span>
         </label>
 
         {/* Hidden File Input */}
@@ -121,10 +121,10 @@ export default function PaymentSection({
             className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
               error
                 ? 'border-red-500/70 bg-red-950/10'
-                : 'border-[#333] hover:border-[#e50914] bg-[#121212] hover:bg-[#161616]'
+                : 'border-[#34275c] hover:border-[#8b5cf6] bg-[#130f24] hover:bg-[#191330]'
             }`}
           >
-            <div className="w-12 h-12 rounded-full bg-[#1e1e1e] text-[#e50914] flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 rounded-full bg-[#1e1738] text-[#c084fc] flex items-center justify-center mx-auto mb-3">
               <Upload className="w-6 h-6" />
             </div>
             <div className="text-sm font-semibold text-white mb-1">

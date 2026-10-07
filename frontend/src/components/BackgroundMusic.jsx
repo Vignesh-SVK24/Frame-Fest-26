@@ -114,16 +114,16 @@ export default function BackgroundMusic({ isHome = false }) {
           onClick={toggleMusic}
           aria-label={isPlaying ? 'Pause music' : 'Turn on music'}
           title={isPlaying ? 'Pause music' : 'Turn on music'}
-          className={`group relative flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full backdrop-blur-md transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e50914] focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
+          className={`group relative flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full backdrop-blur-md transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8b5cf6] focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
             isPlaying
-              ? 'bg-[#121212]/95 border border-[#e50914] shadow-[0_0_20px_rgba(229,9,20,0.45)] hover:shadow-[0_0_25px_rgba(229,9,20,0.65)] hover:scale-105'
-              : 'bg-[#101010]/90 border border-[#2b2b2b] hover:border-[#e50914]/60 hover:bg-[#181818] hover:scale-105 shadow-lg'
+              ? 'bg-[#151028]/95 border border-[#8b5cf6] shadow-[0_0_20px_rgba(139,92,246,0.5)] hover:shadow-[0_0_25px_rgba(139,92,246,0.7)] hover:scale-105'
+              : 'bg-[#100d1e]/90 border border-[#2c224b] hover:border-[#8b5cf6]/60 hover:bg-[#1a1433] hover:scale-105 shadow-lg'
           }`}
         >
           {/* Subtle ambient active pulse ring (respects prefers-reduced-motion) */}
           {isPlaying && (
             <span
-              className="absolute inset-0 rounded-full border border-[#e50914]/40 motion-safe:animate-ping pointer-events-none opacity-40"
+              className="absolute inset-0 rounded-full border border-[#8b5cf6]/40 motion-safe:animate-ping pointer-events-none opacity-40"
               aria-hidden="true"
             />
           )}
@@ -137,10 +137,10 @@ export default function BackgroundMusic({ isHome = false }) {
             )}
           </div>
 
-          {/* Tiny Red Status Indicator Dot */}
+          {/* Tiny Violet Status Indicator Dot */}
           <span
             className={`absolute top-1 right-1 w-2 h-2 rounded-full border border-black transition-colors ${
-              isPlaying ? 'bg-[#e50914]' : 'bg-neutral-600'
+              isPlaying ? 'bg-[#8b5cf6]' : 'bg-neutral-600'
             }`}
             aria-hidden="true"
           />

@@ -14,8 +14,8 @@ export default function Hero({ onRegisterClick, onExploreClick }) {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         
         {/* Top Eyebrow Tag */}
-        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#161616]/80 backdrop-blur-md border border-[#2a2a2a] mb-6 shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-[#e50914] animate-pulse"></span>
+        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#161226]/80 backdrop-blur-md border border-[#2f224f] mb-6 shadow-sm">
+          <span className="w-2 h-2 rounded-full bg-[#8b5cf6] animate-pulse"></span>
           <span className="text-xs font-semibold uppercase tracking-widest text-neutral-300">
             {EVENT_CONFIG.department}
           </span>
@@ -24,7 +24,7 @@ export default function Hero({ onRegisterClick, onExploreClick }) {
         {/* Main Cinematic Title */}
         <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black font-cinematic tracking-tight text-white uppercase leading-none drop-shadow-2xl mb-3 sm:mb-4">
           <span>{EVENT_CONFIG.titlePrefix}</span>{' '}
-          <span className="text-[#e50914] inline-block hover:scale-105 transition-transform drop-shadow-[0_0_25px_rgba(229,9,20,0.6)]">
+          <span className="text-[#a855f7] inline-block hover:scale-105 transition-transform drop-shadow-[0_0_25px_rgba(168,85,247,0.7)]">
             {EVENT_CONFIG.titleYear}
           </span>
         </h1>
@@ -36,16 +36,16 @@ export default function Hero({ onRegisterClick, onExploreClick }) {
 
         {/* Tagline */}
         <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-5 sm:mb-6">
-          <div className="h-px w-6 sm:w-16 bg-gradient-to-r from-transparent to-[#e50914]"></div>
-          <p className="text-xs sm:text-base font-extrabold tracking-[0.15em] sm:tracking-[0.2em] text-[#e50914] uppercase drop-shadow-sm">
+          <div className="h-px w-6 sm:w-16 bg-gradient-to-r from-transparent to-[#8b5cf6]"></div>
+          <p className="text-xs sm:text-base font-extrabold tracking-[0.15em] sm:tracking-[0.2em] text-[#c084fc] uppercase drop-shadow-sm">
             {EVENT_CONFIG.tagline}
           </p>
-          <div className="h-px w-6 sm:w-16 bg-gradient-to-l from-transparent to-[#e50914]"></div>
+          <div className="h-px w-6 sm:w-16 bg-gradient-to-l from-transparent to-[#8b5cf6]"></div>
         </div>
 
         {/* Event Date Badge */}
-        <div className="inline-flex items-center space-x-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-[#141414]/80 backdrop-blur-md border border-[#2e2e2e] mb-5 sm:mb-6 text-white font-bold tracking-wider sm:tracking-widest uppercase text-xs sm:text-base shadow-inner">
-          <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#e50914]" />
+        <div className="inline-flex items-center space-x-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg bg-[#141024]/80 backdrop-blur-md border border-[#312554] mb-5 sm:mb-6 text-white font-bold tracking-wider sm:tracking-widest uppercase text-xs sm:text-base shadow-inner">
+          <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c084fc]" />
           <span>{EVENT_CONFIG.date}</span>
         </div>
 
@@ -58,7 +58,7 @@ export default function Hero({ onRegisterClick, onExploreClick }) {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-12 sm:mb-14">
           <button
             onClick={onRegisterClick}
-            className="w-full sm:w-auto px-8 py-4 rounded-lg bg-[#e50914] text-white font-extrabold tracking-wider uppercase text-base hover:bg-[#b80710] shadow-[0_0_30px_rgba(229,9,20,0.45)] hover:shadow-[0_0_40px_rgba(229,9,20,0.7)] transition-all transform hover:-translate-y-1 flex items-center justify-center space-x-3"
+            className="w-full sm:w-auto px-8 py-4 rounded-lg bg-[#8b5cf6] text-white font-extrabold tracking-wider uppercase text-base hover:bg-[#7c3aed] shadow-[0_0_30px_rgba(139,92,246,0.45)] hover:shadow-[0_0_40px_rgba(139,92,246,0.7)] transition-all transform hover:-translate-y-1 flex items-center justify-center space-x-3"
           >
             <Clapperboard className="w-5 h-5" />
             <span>REGISTER NOW</span>
@@ -77,29 +77,29 @@ export default function Hero({ onRegisterClick, onExploreClick }) {
         <WhyJoinSection />
 
         {/* Cinematic Timeline Decorative Strip */}
-        <div className="max-w-3xl mx-auto border border-[#262626] bg-[#111111]/85 rounded-xl p-4 sm:p-6 backdrop-blur-md shadow-2xl">
-          <div className="flex items-center justify-between text-xs text-neutral-400 font-mono tracking-widest mb-3 border-b border-[#222] pb-2">
+        <div className="max-w-3xl mx-auto border border-[#2c224b] bg-[#120e22]/85 rounded-xl p-4 sm:p-6 backdrop-blur-md shadow-2xl">
+          <div className="flex items-center justify-between text-xs text-neutral-400 font-mono tracking-widest mb-3 border-b border-[#251c3d] pb-2">
             <span className="flex items-center space-x-1.5">
               <span className="w-2 h-2 rounded-full bg-green-500"></span>
               <span>TIMELINE 00:00:18:26</span>
             </span>
-            <span className="text-[#e50914] font-bold">CINEMATIC 4K 24FPS</span>
+            <span className="text-[#c084fc] font-bold">CINEMATIC 4K 24FPS</span>
             <span>HICET CAMPUS</span>
           </div>
 
           <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="p-2.5 rounded bg-[#181818]/90 border border-[#282828] hover:border-[#e50914]/40 transition-colors">
-              <VideoIcon className="w-4 h-4 text-[#e50914] mx-auto mb-1" />
+            <div className="p-2.5 rounded bg-[#17122a]/90 border border-[#2f2352] hover:border-[#8b5cf6]/50 transition-colors">
+              <VideoIcon className="w-4 h-4 text-[#c084fc] mx-auto mb-1" />
               <div className="text-xs font-bold text-white uppercase">Short Film</div>
               <div className="text-[10px] text-neutral-400">Cinematography</div>
             </div>
-            <div className="p-2.5 rounded bg-[#181818]/90 border border-[#282828] hover:border-[#e50914]/40 transition-colors">
-              <Sliders className="w-4 h-4 text-[#e50914] mx-auto mb-1" />
+            <div className="p-2.5 rounded bg-[#17122a]/90 border border-[#2f2352] hover:border-[#8b5cf6]/50 transition-colors">
+              <Sliders className="w-4 h-4 text-[#c084fc] mx-auto mb-1" />
               <div className="text-xs font-bold text-white uppercase">Video Editing</div>
               <div className="text-[10px] text-neutral-400">VFX & Grading</div>
             </div>
-            <div className="p-2.5 rounded bg-[#181818]/90 border border-[#282828] hover:border-[#e50914]/40 transition-colors">
-              <Film className="w-4 h-4 text-[#e50914] mx-auto mb-1" />
+            <div className="p-2.5 rounded bg-[#17122a]/90 border border-[#2f2352] hover:border-[#8b5cf6]/50 transition-colors">
+              <Film className="w-4 h-4 text-[#c084fc] mx-auto mb-1" />
               <div className="text-xs font-bold text-white uppercase">Poster & Reels</div>
               <div className="text-[10px] text-neutral-400">Visual Impact</div>
             </div>

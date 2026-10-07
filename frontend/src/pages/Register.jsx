@@ -315,11 +315,11 @@ export default function Register({ onNavigateHome }) {
 
       {/* Page Header */}
       <div className="text-center max-w-2xl mx-auto mb-10">
-        <div className="inline-block px-3 py-1 rounded-full bg-[#181818] border border-[#2e2e2e] text-xs font-mono font-bold tracking-widest text-[#e50914] uppercase mb-3">
+        <div className="inline-block px-3 py-1 rounded-full bg-[#18122c] border border-[#2d224e] text-xs font-mono font-bold tracking-widest text-[#c084fc] uppercase mb-3">
           OFFICIAL PARTICIPANT FORM
         </div>
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-black font-cinematic uppercase tracking-tight text-white mb-3">
-          REGISTER FOR {EVENT_CONFIG.titlePrefix} <span className="text-[#e50914]">{EVENT_CONFIG.titleYear}</span>
+          REGISTER FOR {EVENT_CONFIG.titlePrefix} <span className="text-[#a855f7]">{EVENT_CONFIG.titleYear}</span>
         </h1>
         <p className="text-sm sm:text-base text-neutral-400">
           Enter your details and join our official WhatsApp group to complete registration.
@@ -341,12 +341,12 @@ export default function Register({ onNavigateHome }) {
       <WhyJoinSection compact={true} />
 
       {/* Registration Card Form */}
-      <div className="bg-[#121212]/85 backdrop-blur-md border border-[#242424]/80 rounded-2xl p-6 sm:p-10 shadow-2xl">
+      <div className="bg-[#130f24]/85 backdrop-blur-md border border-[#2a1f49]/80 rounded-2xl p-6 sm:p-10 shadow-2xl">
         <form onSubmit={handleOpenReview} noValidate className="space-y-6">
           
           {/* Section: Participant Details */}
           <div>
-            <h2 className="text-lg font-bold font-cinematic uppercase tracking-wider text-white border-b border-[#222] pb-3 mb-6 flex items-center justify-between">
+            <h2 className="text-lg font-bold font-cinematic uppercase tracking-wider text-white border-b border-[#251b3f] pb-3 mb-6 flex items-center justify-between">
               <span>PARTICIPANT DETAILS</span>
               <span className="text-xs font-sans font-normal text-neutral-500">* All fields required</span>
             </h2>
@@ -356,7 +356,7 @@ export default function Register({ onNavigateHome }) {
               {/* Field 1: Full Name */}
               <div className="sm:col-span-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300 mb-2">
-                  FULL NAME <span className="text-[#e50914]">*</span>
+                  FULL NAME <span className="text-[#c084fc]">*</span>
                 </label>
                 <input
                   type="text"
@@ -364,8 +364,8 @@ export default function Register({ onNavigateHome }) {
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Enter your full name"
-                  className={`w-full px-4 py-3 rounded-lg bg-[#181818] border text-white placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#e50914] transition-all ${
-                    errors.name ? 'border-red-500 bg-red-950/10' : 'border-[#2d2d2d] focus:border-[#e50914]'
+                  className={`w-full px-4 py-3 rounded-lg bg-[#18122c] border text-white placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#8b5cf6] transition-all ${
+                    errors.name ? 'border-red-500 bg-red-950/10' : 'border-[#2f2352] focus:border-[#8b5cf6]'
                   }`}
                 />
                 {errors.name && (
@@ -379,7 +379,7 @@ export default function Register({ onNavigateHome }) {
               {/* Field 2: Register Number */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300 mb-2">
-                  REGISTER NUMBER <span className="text-[#e50914]">*</span>
+                  REGISTER NUMBER <span className="text-[#c084fc]">*</span>
                 </label>
                 <input
                   type="text"
@@ -387,8 +387,8 @@ export default function Register({ onNavigateHome }) {
                   value={formData.registerNumber}
                   onChange={handleInputChange}
                   placeholder="Enter your register number"
-                  className={`w-full px-4 py-3 rounded-lg bg-[#181818] border text-white uppercase placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#e50914] transition-all font-mono ${
-                    errors.registerNumber ? 'border-red-500 bg-red-950/10' : 'border-[#2d2d2d] focus:border-[#e50914]'
+                  className={`w-full px-4 py-3 rounded-lg bg-[#18122c] border text-white uppercase placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#8b5cf6] transition-all font-mono ${
+                    errors.registerNumber ? 'border-red-500 bg-red-950/10' : 'border-[#2f2352] focus:border-[#8b5cf6]'
                   }`}
                 />
                 {errors.registerNumber && (
@@ -402,21 +402,21 @@ export default function Register({ onNavigateHome }) {
               {/* Field 3: Department */}
               <div className={formData.department === 'Other' ? 'sm:col-span-2' : ''}>
                 <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300 mb-2">
-                  DEPARTMENT <span className="text-[#e50914]">*</span>
+                  DEPARTMENT <span className="text-[#c084fc]">*</span>
                 </label>
                 <select
                   name="department"
                   value={formData.department}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 rounded-lg bg-[#181818] border text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#e50914] transition-all ${
-                    errors.department ? 'border-red-500 bg-red-950/10' : 'border-[#2d2d2d] focus:border-[#e50914]'
+                  className={`w-full px-4 py-3 rounded-lg bg-[#18122c] border text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#8b5cf6] transition-all ${
+                    errors.department ? 'border-red-500 bg-red-950/10' : 'border-[#2f2352] focus:border-[#8b5cf6]'
                   }`}
                 >
-                  <option value="" className="bg-[#181818] text-neutral-500">
+                  <option value="" className="bg-[#18122c] text-neutral-500">
                     Select your department
                   </option>
                   {EVENT_CONFIG.departments.map((dept, idx) => (
-                    <option key={idx} value={dept} className="bg-[#181818] text-white">
+                    <option key={idx} value={dept} className="bg-[#18122c] text-white">
                       {dept}
                     </option>
                   ))}
@@ -431,8 +431,8 @@ export default function Register({ onNavigateHome }) {
                 {/* Explicit input to type custom department name when "Other" is chosen */}
                 {formData.department === 'Other' && (
                   <div className="mt-3 animate-fadeIn">
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#e50914] mb-1.5">
-                      ENTER YOUR DEPARTMENT NAME <span className="text-[#e50914]">*</span>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#c084fc] mb-1.5">
+                      ENTER YOUR DEPARTMENT NAME <span className="text-[#c084fc]">*</span>
                     </label>
                     <input
                       type="text"
@@ -444,8 +444,8 @@ export default function Register({ onNavigateHome }) {
                         }
                       }}
                       placeholder="e.g. Biotechnology, Robotics & Automation..."
-                      className={`w-full px-4 py-3 rounded-lg bg-[#151515] border text-white placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#e50914] transition-all ${
-                        errors.otherDepartment ? 'border-red-500 bg-red-950/10' : 'border-[#e50914]/40 focus:border-[#e50914]'
+                      className={`w-full px-4 py-3 rounded-lg bg-[#151026] border text-white placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#8b5cf6] transition-all ${
+                        errors.otherDepartment ? 'border-red-500 bg-red-950/10' : 'border-[#8b5cf6]/40 focus:border-[#8b5cf6]'
                       }`}
                       autoFocus
                     />
@@ -462,21 +462,21 @@ export default function Register({ onNavigateHome }) {
               {/* Field 4: Section */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300 mb-2">
-                  SECTION <span className="text-[#e50914]">*</span>
+                  SECTION <span className="text-[#c084fc]">*</span>
                 </label>
                 <select
                   name="section"
                   value={formData.section}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 rounded-lg bg-[#181818] border text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#e50914] transition-all ${
-                    errors.section ? 'border-red-500 bg-red-950/10' : 'border-[#2d2d2d] focus:border-[#e50914]'
+                  className={`w-full px-4 py-3 rounded-lg bg-[#18122c] border text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#8b5cf6] transition-all ${
+                    errors.section ? 'border-red-500 bg-red-950/10' : 'border-[#2f2352] focus:border-[#8b5cf6]'
                   }`}
                 >
-                  <option value="" className="bg-[#181818] text-neutral-500">
+                  <option value="" className="bg-[#18122c] text-neutral-500">
                     Select your section
                   </option>
                   {EVENT_CONFIG.sections.map((sec, idx) => (
-                    <option key={idx} value={sec} className="bg-[#181818] text-white">
+                    <option key={idx} value={sec} className="bg-[#18122c] text-white">
                       {sec}
                     </option>
                   ))}
@@ -492,7 +492,7 @@ export default function Register({ onNavigateHome }) {
               {/* Field 5: Phone Number */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300 mb-2">
-                  PHONE NUMBER <span className="text-[#e50914]">*</span>
+                  PHONE NUMBER <span className="text-[#c084fc]">*</span>
                 </label>
                 <input
                   type="tel"
@@ -501,8 +501,8 @@ export default function Register({ onNavigateHome }) {
                   value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="Enter 10-digit mobile number"
-                  className={`w-full px-4 py-3 rounded-lg bg-[#181818] border text-white placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#e50914] transition-all font-mono ${
-                    errors.phone ? 'border-red-500 bg-red-950/10' : 'border-[#2d2d2d] focus:border-[#e50914]'
+                  className={`w-full px-4 py-3 rounded-lg bg-[#18122c] border text-white placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#8b5cf6] transition-all font-mono ${
+                    errors.phone ? 'border-red-500 bg-red-950/10' : 'border-[#2f2352] focus:border-[#8b5cf6]'
                   }`}
                 />
                 {errors.phone && (
@@ -516,7 +516,7 @@ export default function Register({ onNavigateHome }) {
               {/* Field 6: Email */}
               <div className="sm:col-span-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300 mb-2">
-                  EMAIL ADDRESS <span className="text-[#e50914]">*</span>
+                  EMAIL ADDRESS <span className="text-[#c084fc]">*</span>
                 </label>
                 <input
                   type="email"
@@ -524,8 +524,8 @@ export default function Register({ onNavigateHome }) {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="Enter your college or personal email"
-                  className={`w-full px-4 py-3 rounded-lg bg-[#181818] border text-white placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#e50914] transition-all ${
-                    errors.email ? 'border-red-500 bg-red-950/10' : 'border-[#2d2d2d] focus:border-[#e50914]'
+                  className={`w-full px-4 py-3 rounded-lg bg-[#18122c] border text-white placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#8b5cf6] transition-all ${
+                    errors.email ? 'border-red-500 bg-red-950/10' : 'border-[#2f2352] focus:border-[#8b5cf6]'
                   }`}
                 />
                 {errors.email && (
@@ -543,11 +543,11 @@ export default function Register({ onNavigateHome }) {
           <WhatsAppSection />
 
           {/* Submit Button */}
-          <div className="pt-6 border-t border-[#262626]">
+          <div className="pt-6 border-t border-[#251b3f]">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4 px-6 rounded-xl bg-[#e50914] hover:bg-[#b80710] text-white font-extrabold tracking-wider uppercase text-base shadow-[0_0_25px_rgba(229,9,20,0.4)] hover:shadow-[0_0_35px_rgba(229,9,20,0.65)] transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 px-6 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-extrabold tracking-wider uppercase text-base shadow-[0_0_25px_rgba(139,92,246,0.45)] hover:shadow-[0_0_35px_rgba(139,92,246,0.7)] transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Clapperboard className="w-5 h-5" />
               <span>SUBMIT REGISTRATION</span>

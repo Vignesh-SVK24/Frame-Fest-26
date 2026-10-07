@@ -8,31 +8,31 @@ export default function EventDetails() {
       label: "EVENT",
       value: EVENT_CONFIG.name,
       subvalue: "Annual Media Fest",
-      icon: <Film className="w-5 h-5 text-[#e50914]" />
+      icon: <Film className="w-5 h-5 text-[#c084fc]" />
     },
     {
       label: "DATE",
       value: EVENT_CONFIG.date,
-      subvalue: "Tuesday • Full Day",
-      icon: <Calendar className="w-5 h-5 text-[#e50914]" />
+      subvalue: "Wednesday • Full Day",
+      icon: <Calendar className="w-5 h-5 text-[#c084fc]" />
     },
     {
       label: "CATEGORY",
       value: EVENT_CONFIG.category,
       subvalue: "Creative & Media Competition",
-      icon: <Award className="w-5 h-5 text-[#e50914]" />
+      icon: <Award className="w-5 h-5 text-[#c084fc]" />
     },
     {
       label: "ORGANIZED BY",
       value: EVENT_CONFIG.department,
       subvalue: "AIML Association",
-      icon: <Building2 className="w-5 h-5 text-[#e50914]" />
+      icon: <Building2 className="w-5 h-5 text-[#c084fc]" />
     },
     {
       label: "COLLEGE",
       value: EVENT_CONFIG.college,
       subvalue: "Autonomous Institution, Coimbatore",
-      icon: <GraduationCap className="w-5 h-5 text-[#e50914]" />
+      icon: <GraduationCap className="w-5 h-5 text-[#c084fc]" />
     }
   ];
 
@@ -42,7 +42,7 @@ export default function EventDetails() {
       type: "list",
       names: EVENT_CONFIG.staffCoordinators,
       subtitle: "Faculty Coordinators",
-      icon: <Users className="w-5 h-5 text-[#e50914]" />,
+      icon: <Users className="w-5 h-5 text-[#c084fc]" />,
       orderClass: "order-3 md:order-1"
     },
     {
@@ -51,7 +51,7 @@ export default function EventDetails() {
       name: EVENT_CONFIG.convenor.name,
       designation: EVENT_CONFIG.convenor.designation,
       subtitle: "Department Leadership",
-      icon: <UserCheck className="w-5 h-5 text-[#e50914]" />,
+      icon: <UserCheck className="w-5 h-5 text-[#c084fc]" />,
       orderClass: "order-2 md:order-2"
     },
     {
@@ -60,18 +60,18 @@ export default function EventDetails() {
       name: EVENT_CONFIG.patron.name,
       designation: EVENT_CONFIG.patron.designation,
       subtitle: "Institutional Patron",
-      icon: <ShieldCheck className="w-5 h-5 text-[#e50914]" />,
+      icon: <ShieldCheck className="w-5 h-5 text-[#c084fc]" />,
       orderClass: "order-1 md:order-3"
     }
   ];
 
   return (
-    <section id="event-details" className="py-20 bg-[#080808]/75 backdrop-blur-sm relative border-b border-[#1f1f1f]/50">
+    <section id="event-details" className="py-20 bg-[#07050d]/75 backdrop-blur-sm relative border-b border-[#221a38]/50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section 1: Key Specifications */}
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-xs font-bold tracking-[0.25em] text-[#e50914] uppercase mb-2">
+          <h2 className="text-xs font-bold tracking-[0.25em] text-[#c084fc] uppercase mb-2">
             KEY SPECIFICATIONS
           </h2>
           <p className="text-3xl sm:text-4xl font-extrabold font-cinematic text-white uppercase tracking-tight">
@@ -84,15 +84,15 @@ export default function EventDetails() {
           {details.map((item, idx) => (
             <div
               key={idx}
-              className={`bg-[#121212]/80 backdrop-blur-sm border border-[#222222]/80 rounded-xl p-6 transition-all hover:border-[#383838] shadow-md flex items-start space-x-4 ${
+              className={`bg-[#130f24]/80 backdrop-blur-sm border border-[#271e46]/80 rounded-xl p-6 transition-all hover:border-[#8b5cf6]/50 shadow-md flex items-start space-x-4 ${
                 idx === 3 ? 'lg:col-span-2' : ''
               }`}
             >
-              <div className="p-3 rounded-lg bg-[#1a1a1a] border border-[#282828] shrink-0">
+              <div className="p-3 rounded-lg bg-[#1a1433] border border-[#312557] shrink-0">
                 {item.icon}
               </div>
               <div>
-                <span className="text-xs font-mono font-bold tracking-widest text-[#e50914] uppercase block mb-1">
+                <span className="text-xs font-mono font-bold tracking-widest text-[#c084fc] uppercase block mb-1">
                   {item.label}
                 </span>
                 <span className="text-base sm:text-lg font-bold text-white block leading-snug">
@@ -108,14 +108,14 @@ export default function EventDetails() {
 
         {/* Clean Spacing and Divider */}
         <div className="my-16 flex items-center justify-center space-x-4">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2a2a2a] to-transparent"></div>
-          <div className="w-2 h-2 rounded-full bg-[#e50914]/60"></div>
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2a2a2a] to-transparent"></div>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2f2452] to-transparent"></div>
+          <div className="w-2 h-2 rounded-full bg-[#8b5cf6]/60"></div>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2f2452] to-transparent"></div>
         </div>
 
         {/* Section 2: Leadership & Coordinators */}
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <h3 className="text-xs font-bold tracking-[0.25em] text-[#e50914] uppercase mb-2">
+          <h3 className="text-xs font-bold tracking-[0.25em] text-[#c084fc] uppercase mb-2">
             FEST LEADERSHIP & COORDINATORS
           </h3>
           <p className="text-2xl sm:text-3xl font-extrabold font-cinematic text-white uppercase tracking-tight">
@@ -128,15 +128,15 @@ export default function EventDetails() {
           {leadership.map((item, idx) => (
             <div
               key={idx}
-              className={`bg-[#121212]/80 backdrop-blur-sm border border-[#222222]/80 hover:border-[#e50914]/40 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 shadow-md flex flex-col justify-between ${item.orderClass}`}
+              className={`bg-[#130f24]/80 backdrop-blur-sm border border-[#271e46]/80 hover:border-[#8b5cf6]/50 rounded-xl p-6 transition-all duration-300 hover:-translate-y-1 shadow-md flex flex-col justify-between ${item.orderClass}`}
             >
               <div>
                 {/* Header with Role & Icon */}
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-mono font-bold tracking-widest text-[#e50914] uppercase">
+                  <span className="text-xs font-mono font-bold tracking-widest text-[#c084fc] uppercase">
                     {item.role}
                   </span>
-                  <div className="p-2 rounded-lg bg-[#1a1a1a] border border-[#282828]">
+                  <div className="p-2 rounded-lg bg-[#1a1433] border border-[#312557]">
                     {item.icon}
                   </div>
                 </div>

@@ -40,14 +40,14 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-transparent text-white selection:bg-[#e50914] selection:text-white relative">
+    <div className="min-h-screen flex flex-col bg-transparent text-white selection:bg-[#8b5cf6] selection:text-white relative">
       {/* 0. Fullscreen Fixed Background Video */}
       <GlobalBackgroundVideo />
 
       {/* Foreground Website Content (Layer z-10) */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Cinematic Top Red Ambient Line */}
-        <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#e50914] to-transparent z-50 pointer-events-none opacity-80"></div>
+        {/* Cinematic Top Ambient Line */}
+        <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#8b5cf6] to-transparent z-50 pointer-events-none opacity-80"></div>
 
         {/* Main Header */}
         <Header
@@ -73,7 +73,7 @@ export default function App() {
           <div className="md:hidden fixed bottom-4 left-4 right-4 z-40">
             <button
               onClick={() => navigateTo('register')}
-              className="w-full py-3.5 px-4 rounded-xl bg-[#e50914] text-white font-extrabold tracking-wider uppercase text-sm shadow-[0_0_25px_rgba(229,9,20,0.6)] flex items-center justify-center space-x-2 border border-[#ff4d4d]"
+              className="w-full py-3.5 px-4 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-extrabold tracking-wider uppercase text-sm shadow-[0_0_25px_rgba(139,92,246,0.6)] flex items-center justify-center space-x-2 border border-[#a855f7]"
             >
               <Clapperboard className="w-4 h-4" />
               <span>REGISTER FOR FRAME FEST ’26</span>

@@ -25,7 +25,7 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
         particleCount: 70,
         spread: 75,
         origin: { y: 0.6 },
-        colors: ['#e50914', '#ffffff', '#25D366', '#ff4d4d']
+        colors: ['#8b5cf6', '#c084fc', '#ffffff', '#a855f7', '#25D366']
       });
     } catch (_) {}
   }, []);
@@ -50,24 +50,24 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
       canvas.height = height;
 
       // Background
-      ctx.fillStyle = '#0a0a0a';
+      ctx.fillStyle = '#07060b';
       ctx.fillRect(0, 0, width, height);
 
-      // Outer Red Border
-      ctx.strokeStyle = '#e50914';
+      // Outer Purple/Violet Border
+      ctx.strokeStyle = '#8b5cf6';
       ctx.lineWidth = 4;
       ctx.strokeRect(24, 24, width - 48, height - 48);
 
       // Inner Dark Surface
-      ctx.fillStyle = '#121212';
+      ctx.fillStyle = '#110d22';
       ctx.fillRect(36, 36, width - 72, height - 72);
 
       // Header Banner
-      ctx.fillStyle = '#1a1a1a';
+      ctx.fillStyle = '#17122e';
       ctx.fillRect(36, 36, width - 72, 170);
 
-      // Top Red Stripe
-      ctx.fillStyle = '#e50914';
+      // Top Violet Stripe
+      ctx.fillStyle = '#8b5cf6';
       ctx.fillRect(36, 36, width - 72, 6);
 
       // College & Dept
@@ -84,7 +84,7 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
       ctx.font = '900 48px sans-serif';
       ctx.fillStyle = '#ffffff';
       ctx.fillText('FRAME FEST ', width / 2 - 40, 160);
-      ctx.fillStyle = '#e50914';
+      ctx.fillStyle = '#a855f7';
       ctx.fillText('’26', width / 2 + 155, 160);
 
       // Subtitle
@@ -102,17 +102,17 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
       ctx.setLineDash([]);
 
       // Registration ID Box
-      ctx.fillStyle = '#090909';
+      ctx.fillStyle = '#090714';
       ctx.fillRect(80, 260, width - 160, 120);
-      ctx.strokeStyle = '#e50914';
+      ctx.strokeStyle = '#8b5cf6';
       ctx.lineWidth = 2;
       ctx.strokeRect(80, 260, width - 160, 120);
 
-      ctx.fillStyle = '#888888';
+      ctx.fillStyle = '#9e95b9';
       ctx.font = 'bold 12px sans-serif';
       ctx.fillText('OFFICIAL REGISTRATION PASS ID', width / 2, 290);
 
-      ctx.fillStyle = '#e50914';
+      ctx.fillStyle = '#c084fc';
       ctx.font = '900 46px monospace';
       ctx.fillText(registrationData?.registrationId || 'FF26-0001', width / 2, 345);
 
@@ -239,7 +239,7 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
               color: #ffffff;
               padding: 24px 28px 18px 28px;
               text-align: center;
-              border-bottom: 3px solid #e50914;
+              border-bottom: 3px solid #8b5cf6;
               position: relative;
             }
             .college-title {
@@ -267,13 +267,13 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
               text-transform: uppercase;
             }
             .event-main-title span {
-              color: #e50914;
+              color: #8b5cf6;
             }
             .event-tagline {
               font-size: 12px;
               font-weight: 700;
               letter-spacing: 2.5px;
-              color: #e50914;
+              color: #8b5cf6;
               text-transform: uppercase;
               margin-top: 6px;
             }
@@ -282,8 +282,8 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
               background: #ffffff;
             }
             .id-box {
-              background: #fbfbfb;
-              border: 2px solid #e50914;
+              background: #faf8ff;
+              border: 2px solid #8b5cf6;
               border-radius: 10px;
               padding: 14px;
               text-align: center;
@@ -300,7 +300,7 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
               font-size: 34px;
               font-family: "Courier New", Courier, monospace;
               font-weight: 900;
-              color: #e50914;
+              color: #8b5cf6;
               letter-spacing: 3px;
               margin-top: 4px;
             }
@@ -506,18 +506,18 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
         </p>
 
         {/* Highlighted Registration ID Card */}
-        <div className="bg-[#0b0b0b] border-2 border-[#e50914]/60 rounded-xl p-6 mb-6 relative shadow-lg">
+        <div className="bg-[#0e0a1b] border-2 border-[#8b5cf6]/60 rounded-xl p-6 mb-6 relative shadow-lg">
           <div className="text-xs font-mono font-bold tracking-widest text-neutral-400 uppercase mb-1">
             OFFICIAL REGISTRATION ID
           </div>
 
           <div className="flex items-center justify-center space-x-3 mb-3">
-            <span className="text-3xl sm:text-4xl font-mono font-black text-[#e50914] tracking-widest">
+            <span className="text-3xl sm:text-4xl font-mono font-black text-[#c084fc] tracking-widest">
               {registrationData?.registrationId || 'FF26-0001'}
             </span>
             <button
               onClick={handleCopyId}
-              className="p-2 rounded-lg bg-[#1f1f1f] hover:bg-[#2b2b2b] text-neutral-300 hover:text-white transition-colors"
+              className="p-2 rounded-lg bg-[#1f1936] hover:bg-[#2b224d] text-neutral-300 hover:text-white transition-colors"
               title="Copy Registration ID"
             >
               {copiedId ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
@@ -531,13 +531,13 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
           )}
 
           {/* Participant Name & Date */}
-          <div className="pt-4 border-t border-[#222] flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-300 gap-2">
+          <div className="pt-4 border-t border-[#231b3d] flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-300 gap-2">
             <div>
               <span className="text-neutral-500">PARTICIPANT: </span>
               <span className="font-bold text-white">{registrationData?.name}</span>
             </div>
             <div className="flex items-center space-x-1.5 font-bold text-white">
-              <Calendar className="w-3.5 h-3.5 text-[#e50914]" />
+              <Calendar className="w-3.5 h-3.5 text-[#c084fc]" />
               <span>{EVENT_CONFIG.date.toUpperCase()}</span>
             </div>
           </div>
@@ -583,13 +583,13 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
             <button
               onClick={handleDownloadPdf}
               disabled={downloadingType === 'pdf'}
-              className="py-3.5 px-4 rounded-xl bg-[#e50914] hover:bg-[#b80710] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2 shadow-[0_0_20px_rgba(229,9,20,0.4)] hover:shadow-[0_0_25px_rgba(229,9,20,0.6)]"
+              className="py-3.5 px-4 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2 shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_25px_rgba(139,92,246,0.6)]"
               title="Download Single-Page PDF Pass"
             >
               <FileText className="w-5 h-5 text-white" />
               <div className="text-left">
                 <div className="font-extrabold text-sm">DOWNLOAD PDF PASS</div>
-                <div className="text-[10px] text-red-200 lowercase font-normal">single-page ticket (.pdf)</div>
+                <div className="text-[10px] text-purple-200 lowercase font-normal">single-page ticket (.pdf)</div>
               </div>
             </button>
 
@@ -597,10 +597,10 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
             <button
               onClick={handleDownloadImage}
               disabled={downloadingType === 'image'}
-              className="py-3.5 px-4 rounded-xl bg-[#1a1a1a] hover:bg-[#252525] border border-[#333] hover:border-[#e50914] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2 group shadow-md"
+              className="py-3.5 px-4 rounded-xl bg-[#140f26] hover:bg-[#1a1433] border border-[#2d224e] hover:border-[#8b5cf6] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-2 group shadow-md"
               title="Download as high-res PNG image pass"
             >
-              <ImageIcon className="w-5 h-5 text-[#e50914] group-hover:scale-110 transition-transform" />
+              <ImageIcon className="w-5 h-5 text-[#c084fc] group-hover:scale-110 transition-transform" />
               <div className="text-left">
                 <div className="font-extrabold text-sm">DOWNLOAD PASS IMAGE</div>
                 <div className="text-[10px] text-neutral-400 font-normal">high-resolution (.png)</div>
@@ -610,20 +610,20 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
         </div>
 
         {/* Navigation Buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-[#222]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-[#251b3f]">
           <button
             onClick={onRegisterAnother}
-            className="py-3 px-4 rounded-lg bg-[#1a1a1a] hover:bg-[#242424] border border-[#333] text-neutral-200 font-semibold tracking-wide text-xs uppercase transition-colors flex items-center justify-center space-x-2"
+            className="py-3 px-4 rounded-lg bg-[#140f26] hover:bg-[#1d1636] border border-[#2d224e] text-neutral-200 font-semibold tracking-wide text-xs uppercase transition-colors flex items-center justify-center space-x-2"
           >
-            <UserPlus className="w-4 h-4 text-[#e50914]" />
+            <UserPlus className="w-4 h-4 text-[#c084fc]" />
             <span>REGISTER ANOTHER</span>
           </button>
 
           <button
             onClick={onGoHome}
-            className="py-3 px-4 rounded-lg bg-[#1a1a1a] hover:bg-[#242424] border border-[#333] text-neutral-200 font-semibold tracking-wide text-xs uppercase transition-colors flex items-center justify-center space-x-2"
+            className="py-3 px-4 rounded-lg bg-[#140f26] hover:bg-[#1d1636] border border-[#2d224e] text-neutral-200 font-semibold tracking-wide text-xs uppercase transition-colors flex items-center justify-center space-x-2"
           >
-            <Home className="w-4 h-4 text-[#e50914]" />
+            <Home className="w-4 h-4 text-[#c084fc]" />
             <span>GO TO HOME</span>
           </button>
         </div>

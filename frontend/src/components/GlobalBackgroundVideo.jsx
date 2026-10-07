@@ -181,7 +181,7 @@ export default function GlobalBackgroundVideo() {
       <div className="absolute inset-0 w-full h-full bg-black/35 sm:bg-black/50 pointer-events-none"></div>
       <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/45 via-black/15 to-black/75 pointer-events-none"></div>
       <div className="absolute inset-0 w-full h-full bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(5,5,5,0.6)_100%)] pointer-events-none"></div>
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[#e50914]/5 blur-[130px] pointer-events-none"></div>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[#8b5cf6]/10 blur-[130px] pointer-events-none"></div>
     </div>
   );
 }

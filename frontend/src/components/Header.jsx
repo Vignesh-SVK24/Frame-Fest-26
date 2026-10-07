@@ -45,18 +45,18 @@ export default function Header({ currentPage, setCurrentPage }) {
             onClick={() => navigateTo('home')}
             className="flex items-center space-x-3 text-left group focus:outline-none"
           >
-            <div className="w-10 h-10 rounded bg-[#161616] border border-[#333] flex items-center justify-center text-[#e50914] group-hover:border-[#e50914] transition-all">
+            <div className="w-10 h-10 rounded bg-[#161616] border border-[#333] flex items-center justify-center text-[#8b5cf6] group-hover:border-[#8b5cf6] transition-all">
               <Film className="w-5 h-5 transition-transform group-hover:rotate-12" />
             </div>
             <div>
               <div className="flex items-center space-x-1.5">
-                <span className="text-xs font-bold tracking-widest text-[#e50914] bg-[#e50914]/10 px-1.5 py-0.5 rounded border border-[#e50914]/30">
+                <span className="text-xs font-bold tracking-widest text-[#c084fc] bg-[#8b5cf6]/15 px-1.5 py-0.5 rounded border border-[#8b5cf6]/40">
                   {EVENT_CONFIG.collegeShort}
                 </span>
                 <span className="text-xs text-neutral-400 font-medium">AIML</span>
               </div>
               <div className="text-lg font-extrabold tracking-wider text-white font-cinematic flex items-center">
-                FRAME FEST <span className="text-[#e50914] ml-1">’26</span>
+                FRAME FEST <span className="text-[#a855f7] ml-1">’26</span>
               </div>
             </div>
           </button>
@@ -65,28 +65,28 @@ export default function Header({ currentPage, setCurrentPage }) {
           <nav className="hidden md:flex items-center space-x-8 text-sm font-semibold tracking-wide">
             <button
               onClick={() => navigateTo('home')}
-              className={`transition-colors hover:text-[#e50914] ${
-                currentPage === 'home' ? 'text-[#e50914]' : 'text-neutral-300'
+              className={`transition-colors hover:text-[#c084fc] ${
+                currentPage === 'home' ? 'text-[#a855f7]' : 'text-neutral-300'
               }`}
             >
               HOME
             </button>
             <button
               onClick={() => navigateTo('home', 'about-section')}
-              className="text-neutral-300 hover:text-[#e50914] transition-colors"
+              className="text-neutral-300 hover:text-[#c084fc] transition-colors"
             >
               ABOUT
             </button>
             <button
               onClick={() => navigateTo('home', 'event-details')}
-              className="text-neutral-300 hover:text-[#e50914] transition-colors"
+              className="text-neutral-300 hover:text-[#c084fc] transition-colors"
             >
               DETAILS
             </button>
             <button
               onClick={() => navigateTo('register')}
-              className={`transition-colors hover:text-[#e50914] ${
-                currentPage === 'register' ? 'text-[#e50914]' : 'text-neutral-300'
+              className={`transition-colors hover:text-[#c084fc] ${
+                currentPage === 'register' ? 'text-[#a855f7]' : 'text-neutral-300'
               }`}
             >
               REGISTER
@@ -100,7 +100,7 @@ export default function Header({ currentPage, setCurrentPage }) {
             <div className="hidden md:block">
               <button
                 onClick={() => navigateTo('register')}
-                className="px-5 py-2.5 rounded-md bg-[#e50914] text-white text-sm font-bold tracking-wider hover:bg-[#b80710] shadow-[0_0_20px_rgba(229,9,20,0.35)] hover:shadow-[0_0_25px_rgba(229,9,20,0.55)] transition-all transform hover:-translate-y-0.5 flex items-center space-x-2"
+                className="px-5 py-2.5 rounded-md bg-[#8b5cf6] text-white text-sm font-bold tracking-wider hover:bg-[#7c3aed] shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_25px_rgba(139,92,246,0.6)] transition-all transform hover:-translate-y-0.5 flex items-center space-x-2"
               >
                 <Clapperboard className="w-4 h-4" />
                 <span>REGISTER NOW</span>
@@ -114,7 +114,7 @@ export default function Header({ currentPage, setCurrentPage }) {
                 onClick={() => setAdminMenuOpen(!adminMenuOpen)}
                 className={`p-2 rounded-lg border transition-all flex items-center justify-center ${
                   adminMenuOpen || currentPage === 'admin'
-                    ? 'bg-[#1e1e1e] border-[#e50914] text-[#e50914] shadow-[0_0_12px_rgba(229,9,20,0.3)]'
+                    ? 'bg-[#181329] border-[#8b5cf6] text-[#c084fc] shadow-[0_0_12px_rgba(139,92,246,0.35)]'
                     : 'bg-[#141414] border-[#2b2b2b] text-neutral-400 hover:text-white hover:border-neutral-500'
                 }`}
                 title="Organizer Profile"
@@ -139,7 +139,7 @@ export default function Header({ currentPage, setCurrentPage }) {
                     onClick={() => navigateTo('admin')}
                     className="w-full text-left px-3 py-2.5 text-xs font-bold tracking-wider text-neutral-200 hover:text-white hover:bg-[#1a1a1a] flex items-center space-x-2.5 transition-colors group"
                   >
-                    <Shield className="w-3.5 h-3.5 text-[#e50914] group-hover:scale-110 transition-transform" />
+                    <Shield className="w-3.5 h-3.5 text-[#c084fc] group-hover:scale-110 transition-transform" />
                     <span>ADMIN LOGIN</span>
                   </button>
                 </div>
@@ -168,7 +168,7 @@ export default function Header({ currentPage, setCurrentPage }) {
           <button
             onClick={() => navigateTo('home')}
             className={`block w-full text-left px-3 py-2 rounded-md text-base font-semibold ${
-              currentPage === 'home' ? 'bg-[#181818] text-[#e50914]' : 'text-neutral-300'
+              currentPage === 'home' ? 'bg-[#181329] text-[#c084fc]' : 'text-neutral-300'
             }`}
           >
             HOME
@@ -188,7 +188,7 @@ export default function Header({ currentPage, setCurrentPage }) {
           <button
             onClick={() => navigateTo('register')}
             className={`block w-full text-left px-3 py-2 rounded-md text-base font-semibold ${
-              currentPage === 'register' ? 'bg-[#181818] text-[#e50914]' : 'text-neutral-300'
+              currentPage === 'register' ? 'bg-[#181329] text-[#c084fc]' : 'text-neutral-300'
             }`}
           >
             REGISTER
@@ -196,7 +196,7 @@ export default function Header({ currentPage, setCurrentPage }) {
           <div className="pt-2">
             <button
               onClick={() => navigateTo('register')}
-              className="w-full py-3 rounded-md bg-[#e50914] text-white text-center font-bold tracking-wider shadow-[0_0_15px_rgba(229,9,20,0.4)]"
+              className="w-full py-3 rounded-md bg-[#8b5cf6] hover:bg-[#7c3aed] text-white text-center font-bold tracking-wider shadow-[0_0_15px_rgba(139,92,246,0.45)]"
             >
               REGISTER NOW
             </button>

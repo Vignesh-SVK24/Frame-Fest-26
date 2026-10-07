@@ -9,9 +9,9 @@ export default function Footer({ onNavigateAdmin }) {
         
         {/* Film logo & title */}
         <div className="flex items-center justify-center space-x-2">
-          <Film className="w-5 h-5 text-[#e50914]" />
+          <Film className="w-5 h-5 text-[#c084fc]" />
           <span className="text-xl font-black font-cinematic text-white tracking-wider">
-            {EVENT_CONFIG.titlePrefix} <span className="text-[#e50914]">{EVENT_CONFIG.titleYear}</span>
+            {EVENT_CONFIG.titlePrefix} <span className="text-[#a855f7]">{EVENT_CONFIG.titleYear}</span>
           </span>
         </div>
 
@@ -24,7 +24,7 @@ export default function Footer({ onNavigateAdmin }) {
         <div className="text-xs sm:text-sm text-neutral-400 space-y-1">
           <p>{EVENT_CONFIG.department}</p>
           <p className="font-semibold text-neutral-300">{EVENT_CONFIG.college}</p>
-          <p className="text-[#e50914] font-medium pt-1">Event Date: {EVENT_CONFIG.date}</p>
+          <p className="text-[#c084fc] font-medium pt-1">Event Date: {EVENT_CONFIG.date}</p>
         </div>
 
         {/* Copyright & subtle admin link */}

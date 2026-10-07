@@ -44,8 +44,8 @@ export default function Admin({ onNavigateHome }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Attendance Mode state (Event Date: 22 September 2026)
-  const eventDateObj = useMemo(() => new Date('2026-09-22T00:00:00'), []);
+  // Attendance Mode state (Event Date: 4 November 2026)
+  const eventDateObj = useMemo(() => new Date('2026-11-04T00:00:00'), []);
   const isEventDayOrAfter = useMemo(() => new Date() >= eventDateObj, [eventDateObj]);
   const [attendanceOpen, setAttendanceOpen] = useState(false);
 
@@ -562,13 +562,13 @@ export default function Admin({ onNavigateHome }) {
         <div className="bg-[#121212]/90 backdrop-blur-md border border-[#262626]/80 rounded-2xl max-w-md w-full p-8 shadow-2xl relative text-center">
           
           {/* Film Perforation accent */}
-          <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#e50914] to-transparent mb-6"></div>
+          <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#8b5cf6] to-transparent mb-6"></div>
 
-          <div className="w-14 h-14 rounded-2xl bg-[#181818] border border-[#333] text-[#e50914] flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(229,9,20,0.25)]">
+          <div className="w-14 h-14 rounded-2xl bg-[#181818] border border-[#333] text-[#8b5cf6] flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(139,92,246,0.3)]">
             <Lock className="w-7 h-7" />
           </div>
 
-          <div className="text-[11px] font-mono font-bold tracking-[0.2em] text-[#e50914] uppercase mb-1">
+          <div className="text-[11px] font-mono font-bold tracking-[0.2em] text-[#c084fc] uppercase mb-1">
             FRAME FEST ’26
           </div>
           <h2 className="text-2xl sm:text-3xl font-black font-cinematic uppercase tracking-tight text-white mb-2">
@@ -587,7 +587,7 @@ export default function Admin({ onNavigateHome }) {
               <select
                 value={loginUsername}
                 onChange={(e) => setLoginUsername(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-[#181818] border border-[#333] text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#e50914] focus:border-[#e50914]"
+                className="w-full px-4 py-3 rounded-lg bg-[#181818] border border-[#333] text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#8b5cf6] focus:border-[#8b5cf6]"
               >
                 <option value="Dr. D. Satheesh Kumar">Dr. D. Satheesh Kumar</option>
                 <option value="Ms. V. Devi">Ms. V. Devi</option>
@@ -605,7 +605,7 @@ export default function Admin({ onNavigateHome }) {
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 placeholder="Enter admin password"
-                className="w-full px-4 py-3 rounded-lg bg-[#181818] border border-[#333] text-white placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#e50914] focus:border-[#e50914]"
+                className="w-full px-4 py-3 rounded-lg bg-[#181818] border border-[#333] text-white placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#8b5cf6] focus:border-[#8b5cf6]"
                 autoFocus
               />
             </div>
@@ -621,7 +621,7 @@ export default function Admin({ onNavigateHome }) {
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="w-full py-3.5 rounded-lg bg-[#e50914] hover:bg-[#b80710] text-white font-bold tracking-wider uppercase text-xs sm:text-sm shadow-[0_0_20px_rgba(229,9,20,0.4)] transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+              className="w-full py-3.5 rounded-lg bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold tracking-wider uppercase text-xs sm:text-sm shadow-[0_0_20px_rgba(139,92,246,0.4)] border border-[#a855f7] transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
             >
               <Shield className="w-4 h-4" />
               <span>{isLoggingIn ? 'AUTHENTICATING...' : 'SIGN IN'}</span>
@@ -650,7 +650,7 @@ export default function Admin({ onNavigateHome }) {
       {/* Top Header: Welcome [Admin Name] + Logout + Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-[#222] gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-mono font-bold tracking-widest text-[#e50914] uppercase mb-1">
+          <div className="flex items-center space-x-2 text-xs font-mono font-bold tracking-widest text-[#c084fc] uppercase mb-1">
             <Shield className="w-4 h-4" />
             <span>FRAME FEST ’26 ADMIN CONSOLE</span>
           </div>
@@ -670,15 +670,15 @@ export default function Admin({ onNavigateHome }) {
             className="p-2.5 rounded-lg bg-[#181818] border border-[#2d2d2d] text-neutral-300 hover:text-white hover:border-[#444] transition-colors"
             title="Refresh Data"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-[#e50914]' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-[#8b5cf6]' : ''}`} />
           </button>
 
           <button
             onClick={handleExportCsv}
-            className="px-3.5 py-2.5 rounded-lg bg-[#181818] border border-[#333] hover:border-[#e50914] text-white text-xs font-bold tracking-wider uppercase flex items-center space-x-2 transition-all shadow-sm"
+            className="px-3.5 py-2.5 rounded-lg bg-[#181818] border border-[#333] hover:border-[#8b5cf6] text-white text-xs font-bold tracking-wider uppercase flex items-center space-x-2 transition-all shadow-sm"
             title="Export Attendance CSV"
           >
-            <Download className="w-4 h-4 text-[#e50914]" />
+            <Download className="w-4 h-4 text-[#8b5cf6]" />
             <span className="hidden sm:inline">EXPORT ATTENDANCE CSV</span>
             <span className="sm:hidden">CSV</span>
           </button>
@@ -763,15 +763,15 @@ export default function Admin({ onNavigateHome }) {
         </div>
       </div>
 
-      {/* Event Attendance Gate Banner (Event Date: 22 September 2026) */}
+      {/* Event Attendance Gate Banner (Event Date: 4 November 2026) */}
       <div className="bg-[#121212] border border-[#262626] rounded-xl p-5 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-start space-x-3.5">
-          <div className="p-3 rounded-lg bg-[#181818] border border-[#2e2e2e] text-[#e50914] shrink-0">
+          <div className="p-3 rounded-lg bg-[#181818] border border-[#2e2e2e] text-[#8b5cf6] shrink-0">
             <Calendar className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-mono font-bold text-[#e50914] uppercase">
+              <span className="text-xs font-mono font-bold text-[#c084fc] uppercase">
                 EVENT DATE: {EVENT_CONFIG.date.toUpperCase()}
               </span>
               {!isEventDayOrAfter && !attendanceOpen && (
@@ -801,7 +801,7 @@ export default function Admin({ onNavigateHome }) {
           ) : (
             <button
               onClick={() => setAttendanceOpen(true)}
-              className="px-5 py-3 rounded-lg bg-[#e50914] hover:bg-[#b80710] text-white text-xs font-bold tracking-wider uppercase shadow-[0_0_20px_rgba(229,9,20,0.4)] transition-all flex items-center space-x-2"
+              className="px-5 py-3 rounded-lg bg-[#8b5cf6] hover:bg-[#7c3aed] text-white text-xs font-bold tracking-wider uppercase shadow-[0_0_20px_rgba(139,92,246,0.4)] border border-[#a855f7] transition-all flex items-center space-x-2"
             >
               <UserCheck className="w-4 h-4" />
               <span>OPEN REGISTER ATTENDANCE</span>
@@ -812,16 +812,16 @@ export default function Admin({ onNavigateHome }) {
 
       {/* QUICK ATTENDANCE SCANNER & SEARCH (Visible when Attendance Mode is open) */}
       {attendanceOpen && (
-        <div className="bg-gradient-to-r from-[#161616] via-[#141414] to-[#161616] border-2 border-[#e50914]/50 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-4 animate-fadeIn">
+        <div className="bg-gradient-to-r from-[#161616] via-[#141414] to-[#161616] border-2 border-[#8b5cf6]/50 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-4 animate-fadeIn shadow-[0_0_30px_rgba(139,92,246,0.15)]">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <QrCode className="w-5 h-5 text-[#e50914]" />
+              <QrCode className="w-5 h-5 text-[#8b5cf6]" />
               <h3 className="text-base sm:text-lg font-black font-cinematic uppercase tracking-wider text-white">
                 FAST ATTENDANCE VERIFICATION
               </h3>
             </div>
             <span className="text-[11px] font-mono text-neutral-400 uppercase">
-              Admin: <span className="text-[#e50914] font-bold">{currentAdmin}</span>
+              Admin: <span className="text-[#c084fc] font-bold">{currentAdmin}</span>
             </span>
           </div>
 
@@ -832,7 +832,7 @@ export default function Admin({ onNavigateHome }) {
               value={quickSearchInput}
               onChange={(e) => setQuickSearchInput(e.target.value)}
               placeholder="SCAN / ENTER TICKET ID (e.g. FF26-0001) or Register No..."
-              className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-[#0a0a0a] border border-[#333] text-white text-sm font-mono placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#e50914] focus:border-[#e50914]"
+              className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-[#0a0a0a] border border-[#333] text-white text-sm font-mono placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#8b5cf6] focus:border-[#8b5cf6]"
               autoFocus
             />
           </div>
@@ -842,7 +842,7 @@ export default function Admin({ onNavigateHome }) {
             <div className="bg-[#1c1c1c] border border-[#333] rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fadeIn">
               <div className="space-y-1">
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs font-mono font-extrabold text-[#e50914] bg-[#e50914]/10 px-2 py-0.5 rounded border border-[#e50914]/30">
+                  <span className="text-xs font-mono font-extrabold text-[#c084fc] bg-[#8b5cf6]/10 px-2 py-0.5 rounded border border-[#8b5cf6]/30">
                     {quickMatchedParticipant.registrationId}
                   </span>
                   <span className="font-mono text-xs text-neutral-400">
@@ -910,7 +910,7 @@ export default function Admin({ onNavigateHome }) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by Student Name, Register Number, or Ticket ID..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-white text-xs placeholder-neutral-500 focus:outline-none focus:border-[#e50914]"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-white text-xs placeholder-neutral-500 focus:outline-none focus:border-[#8b5cf6]"
           />
         </div>
 
@@ -918,7 +918,7 @@ export default function Admin({ onNavigateHome }) {
         <select
           value={deptFilter}
           onChange={(e) => setDeptFilter(e.target.value)}
-          className="px-3 py-2.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-white text-xs focus:outline-none focus:border-[#e50914]"
+          className="px-3 py-2.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-white text-xs focus:outline-none focus:border-[#8b5cf6]"
         >
           <option value="ALL">All Departments</option>
           {EVENT_CONFIG.departments.map((dept, i) => (
@@ -930,7 +930,7 @@ export default function Admin({ onNavigateHome }) {
         <select
           value={sectionFilter}
           onChange={(e) => setSectionFilter(e.target.value)}
-          className="px-3 py-2.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-white text-xs focus:outline-none focus:border-[#e50914]"
+          className="px-3 py-2.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-white text-xs focus:outline-none focus:border-[#8b5cf6]"
         >
           <option value="ALL">All Sections</option>
           {EVENT_CONFIG.sections.map((sec, i) => (
@@ -942,7 +942,7 @@ export default function Admin({ onNavigateHome }) {
         <select
           value={attendanceFilter}
           onChange={(e) => setAttendanceFilter(e.target.value)}
-          className="px-3 py-2.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-white text-xs focus:outline-none focus:border-[#e50914]"
+          className="px-3 py-2.5 rounded-lg bg-[#181818] border border-[#2a2a2a] text-white text-xs focus:outline-none focus:border-[#8b5cf6]"
         >
           <option value="ALL">All Statuses</option>
           <option value="PENDING">Pending</option>
@@ -981,7 +981,7 @@ export default function Admin({ onNavigateHome }) {
                 registrations.map((reg) => (
                   <tr key={reg.registrationId} className="hover:bg-[#161616] transition-colors">
                     {/* Ticket ID */}
-                    <td className="py-3.5 px-4 font-mono font-extrabold text-[#e50914] whitespace-nowrap">
+                    <td className="py-3.5 px-4 font-mono font-extrabold text-[#c084fc] whitespace-nowrap">
                       {reg.registrationId}
                     </td>
 
@@ -1031,7 +1031,7 @@ export default function Admin({ onNavigateHome }) {
                           className="p-1.5 rounded bg-[#202020] hover:bg-[#2c2c2c] text-neutral-200 hover:text-white transition-colors"
                           title="View Participant Details"
                         >
-                          <Eye className="w-4 h-4 text-[#e50914]" />
+                          <Eye className="w-4 h-4 text-[#8b5cf6]" />
                         </button>
 
                         <button
@@ -1085,7 +1085,7 @@ export default function Admin({ onNavigateHome }) {
             >
               {/* Card Top: Ticket ID + Attendance Status */}
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-extrabold text-[#e50914]">
+                <span className="text-xs font-mono font-extrabold text-[#c084fc]">
                   {reg.registrationId}
                 </span>
                 <div>{getAttendanceBadge(reg.attendanceStatus)}</div>
@@ -1134,7 +1134,7 @@ export default function Admin({ onNavigateHome }) {
                   onClick={() => setSelectedParticipant(reg)}
                   className="py-2 rounded-lg bg-[#1e1e1e] hover:bg-[#282828] border border-[#333] text-neutral-200 text-xs font-bold uppercase transition-all flex items-center justify-center space-x-1"
                 >
-                  <Eye className="w-3.5 h-3.5 text-[#e50914]" />
+                  <Eye className="w-3.5 h-3.5 text-[#8b5cf6]" />
                   <span>DETAILS</span>
                 </button>
 
@@ -1158,7 +1158,7 @@ export default function Admin({ onNavigateHome }) {
       {confirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
           <div className="bg-[#141414] border border-[#2e2e2e] rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
-            <div className="w-12 h-12 rounded-full bg-[#1c1c1c] border border-[#333] flex items-center justify-center mx-auto text-[#e50914]">
+            <div className="w-12 h-12 rounded-full bg-[#1c1c1c] border border-[#333] flex items-center justify-center mx-auto text-[#8b5cf6]">
               {confirmModal.targetStatus === 'PRESENT' ? (
                 <UserCheck className="w-6 h-6 text-green-400" />
               ) : (
@@ -1172,7 +1172,7 @@ export default function Admin({ onNavigateHome }) {
               </h3>
               <p className="text-xs text-neutral-300">
                 Mark <span className="font-bold text-white">{confirmModal.reg.name}</span> (
-                <span className="font-mono text-[#e50914]">{confirmModal.reg.registrationId}</span>) as{' '}
+                <span className="font-mono text-[#c084fc]">{confirmModal.reg.registrationId}</span>) as{' '}
                 <span
                   className={`font-bold ${
                     confirmModal.targetStatus === 'PRESENT' ? 'text-green-400' : 'text-red-400'
@@ -1226,7 +1226,7 @@ export default function Admin({ onNavigateHome }) {
               </h3>
               <p className="text-xs text-neutral-300">
                 Are you sure you want to remove <span className="font-bold text-white">{deleteConfirmModal.name}</span> (
-                <span className="font-mono text-[#e50914]">{deleteConfirmModal.registrationId}</span>)?
+                <span className="font-mono text-[#c084fc]">{deleteConfirmModal.registrationId}</span>)?
               </p>
               <div className="bg-[#0c0c0c] border border-[#222] rounded-lg p-2.5 text-[11px] font-mono text-neutral-400 text-left space-y-1 my-2">
                 <div><span className="text-neutral-500">Reg No:</span> <span className="text-white">{deleteConfirmModal.registerNumber}</span></div>
@@ -1252,7 +1252,7 @@ export default function Admin({ onNavigateHome }) {
                 type="button"
                 onClick={handleExecuteDeleteMember}
                 disabled={isDeleting}
-                className="py-2.5 rounded-lg bg-[#e50914] hover:bg-[#b80710] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(229,9,20,0.4)] flex items-center justify-center space-x-1.5"
+                className="py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(239,68,68,0.4)] flex items-center justify-center space-x-1.5"
               >
                 {isDeleting ? (
                   <span>REMOVING...</span>
@@ -1278,7 +1278,7 @@ export default function Admin({ onNavigateHome }) {
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-[#242424] pb-4 mb-4">
               <div>
-                <span className="text-xs font-mono font-bold text-[#e50914] uppercase">
+                <span className="text-xs font-mono font-bold text-[#c084fc] uppercase">
                   TICKET ID: {selectedParticipant.registrationId}
                 </span>
                 <h3 className="text-xl font-black font-cinematic uppercase text-white">
@@ -1354,7 +1354,7 @@ export default function Admin({ onNavigateHome }) {
                     onClick={() => setViewPaymentModal(selectedParticipant.paymentProof)}
                     className="px-3 py-2 rounded-lg bg-[#1e1e1e] hover:bg-[#282828] border border-[#333] text-xs font-bold text-white uppercase tracking-wider transition-colors flex items-center space-x-1.5"
                   >
-                    <Eye className="w-3.5 h-3.5 text-[#e50914]" />
+                    <Eye className="w-3.5 h-3.5 text-[#8b5cf6]" />
                     <span>VIEW PAYMENT PROOF</span>
                   </button>
                 ) : (
