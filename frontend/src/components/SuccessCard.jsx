@@ -9,7 +9,8 @@ import {
   Calendar, 
   MessageCircle, 
   FileText, 
-  Image as ImageIcon 
+  Image as ImageIcon,
+  MapPin 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { EVENT_CONFIG } from '../config/eventConfig';
@@ -118,9 +119,9 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
 
       // Participant Details Card
       ctx.fillStyle = '#161616';
-      ctx.fillRect(80, 420, width - 160, 360);
+      ctx.fillRect(80, 415, width - 160, 375);
       ctx.strokeStyle = '#262626';
-      ctx.strokeRect(80, 420, width - 160, 360);
+      ctx.strokeRect(80, 415, width - 160, 375);
 
       const drawRow = (label, value, y) => {
         ctx.textAlign = 'left';
@@ -130,32 +131,40 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
 
         ctx.textAlign = 'right';
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 16px sans-serif';
-        ctx.fillText(value || '-', width - 110, y);
+        const valStr = String(value || '-');
+        if (valStr.length > 32) {
+          ctx.font = 'bold 12px sans-serif';
+        } else if (valStr.length > 22) {
+          ctx.font = 'bold 14px sans-serif';
+        } else {
+          ctx.font = 'bold 16px sans-serif';
+        }
+        ctx.fillText(valStr, width - 110, y);
 
         // Divider
         ctx.strokeStyle = '#222222';
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(110, y + 15);
-        ctx.lineTo(width - 110, y + 15);
+        ctx.moveTo(110, y + 14);
+        ctx.lineTo(width - 110, y + 14);
         ctx.stroke();
       };
 
-      drawRow('Participant Name', registrationData?.name, 465);
-      drawRow('Register Number', registrationData?.registerNumber, 515);
-      drawRow('Department', registrationData?.department, 565);
-      drawRow('Section', `Section ${registrationData?.section}`, 615);
-      drawRow('Fest Skill', registrationData?.festSkill || 'General Participant', 665);
-      drawRow('Event Dates', EVENT_CONFIG.date, 715);
+      drawRow('Participant Name', registrationData?.name, 455);
+      drawRow('Register Number', registrationData?.registerNumber, 502);
+      drawRow('Department', registrationData?.department, 549);
+      drawRow('Section', `Section ${registrationData?.section}`, 596);
+      drawRow('Fest Skill(s)', registrationData?.festSkill || 'General Participant', 643);
+      drawRow('Event Dates', EVENT_CONFIG.date, 690);
+      drawRow('Venue', EVENT_CONFIG.venue, 737);
 
       // Status Badge
       ctx.textAlign = 'center';
       ctx.fillStyle = '#059669';
-      ctx.fillRect(width / 2 - 100, 810, 200, 36);
+      ctx.fillRect(width / 2 - 100, 815, 200, 36);
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 14px sans-serif';
-      ctx.fillText('✓ CONFIRMED ENTRY', width / 2, 834);
+      ctx.fillText('✓ CONFIRMED ENTRY', width / 2, 839);
 
       // Decorative Barcode Lines
       const barcodeY = 880;
@@ -170,7 +179,7 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
       // Footer
       ctx.fillStyle = '#777777';
       ctx.font = '12px sans-serif';
-      ctx.fillText(`Present this pass at the HICET Campus registration desk on ${EVENT_CONFIG.date}.`, width / 2, 970);
+      ctx.fillText(`Present this pass at the Marudham Hall, HICET registration desk on ${EVENT_CONFIG.date}.`, width / 2, 970);
       ctx.fillText('© 2026 FRAME FEST ’26 • Department of Artificial Intelligence & Machine Learning', width / 2, 995);
 
       // Trigger download
@@ -412,7 +421,7 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
                     <td class="value">Section ${registrationData?.section || '-'}</td>
                   </tr>
                   <tr>
-                    <td class="label">Fest Skill</td>
+                    <td class="label">Fest Skill(s)</td>
                     <td class="value">${registrationData?.festSkill || 'General Participant'}</td>
                   </tr>
                   <tr>
@@ -421,7 +430,7 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
                   </tr>
                   <tr>
                     <td class="label">Venue</td>
-                    <td class="value">HICET Campus, Coimbatore</td>
+                    <td class="value">${EVENT_CONFIG.venue}</td>
                   </tr>
                   <tr>
                     <td class="label">Entry Authorization</td>
@@ -465,7 +474,7 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
               <!-- Footer Section -->
               <div class="ticket-footer">
                 <strong>Important Instructions:</strong><br/>
-                Please present this single-page pass at the registration desk on <strong>${EVENT_CONFIG.date}</strong>.<br/>
+                Please present this single-page pass at <strong>${EVENT_CONFIG.venue}</strong> registration desk on <strong>${EVENT_CONFIG.date}</strong>.<br/>
                 Join the official WhatsApp group for live event updates, schedules, and film screening locations.<br/>
                 © 2026 FRAME FEST ’26 • Department of Artificial Intelligence & Machine Learning
               </div>
@@ -543,15 +552,26 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
                 <span className="font-bold text-white">{registrationData?.name}</span>
               </div>
               {registrationData?.festSkill && (
-                <span className="px-2 py-0.5 rounded bg-[#8b5cf6]/20 text-[#c084fc] font-semibold border border-[#8b5cf6]/40 text-[11px]">
-                  {registrationData.festSkill}
-                </span>
+                <div className="flex flex-wrap gap-1 items-center justify-center sm:justify-start">
+                  {registrationData.festSkill.split(',').map((s, idx) => (
+                    <span key={idx} className="px-2 py-0.5 rounded bg-[#8b5cf6]/20 text-[#c084fc] font-semibold border border-[#8b5cf6]/40 text-[11px]">
+                      {s.trim()}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
-            <div className="flex items-center space-x-1.5 font-bold text-white">
+            <div className="flex items-center space-x-1.5 font-bold text-white shrink-0">
               <Calendar className="w-3.5 h-3.5 text-[#c084fc]" />
               <span>{EVENT_CONFIG.date.toUpperCase()}</span>
             </div>
+          </div>
+
+          {/* Venue Info */}
+          <div className="mt-2.5 pt-2 border-t border-[#1e1735]/60 flex items-center justify-center sm:justify-start text-xs text-neutral-400 space-x-1.5">
+            <MapPin className="w-3.5 h-3.5 text-[#c084fc]" />
+            <span className="text-neutral-500 uppercase font-mono text-[10px]">VENUE:</span>
+            <span className="text-white font-semibold">{EVENT_CONFIG.venue}</span>
           </div>
         </div>
 

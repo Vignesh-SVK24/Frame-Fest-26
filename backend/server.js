@@ -367,7 +367,7 @@ app.get('/api/check-duplicate/:registerNumber', async (req, res) => {
 // Participant registration endpoint
 app.post('/api/register', upload.single('paymentProof'), async (req, res) => {
   try {
-    const { name, registerNumber, department, section, phone, email, festSkill } = req.body;
+    const { name, registerNumber, department, section, phone, email, festSkill, festSkills } = req.body;
 
     // Validation
     if (!name || !name.trim()) {
@@ -395,9 +395,27 @@ app.post('/api/register', upload.single('paymentProof'), async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please enter a valid email address.' });
     }
 
-    // Fest Skill validation
-    if (!festSkill || !festSkill.trim()) {
-      return res.status(400).json({ success: false, message: 'Please select your Fest Skill.' });
+    // Fest Skill validation (supports multi-select array or string)
+    let resolvedFestSkill = '';
+    if (Array.isArray(festSkills) && festSkills.length > 0) {
+      resolvedFestSkill = festSkills.join(', ');
+    } else if (typeof festSkills === 'string' && festSkills.trim()) {
+      try {
+        const parsed = JSON.parse(festSkills);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          resolvedFestSkill = parsed.join(', ');
+        } else {
+          resolvedFestSkill = festSkills.trim();
+        }
+      } catch (_) {
+        resolvedFestSkill = festSkills.trim();
+      }
+    } else if (typeof festSkill === 'string' && festSkill.trim()) {
+      resolvedFestSkill = festSkill.trim();
+    }
+
+    if (!resolvedFestSkill) {
+      return res.status(400).json({ success: false, message: 'Please select at least one Fest Skill.' });
     }
 
     const normalizedRegNo = registerNumber.trim().toUpperCase();
@@ -445,7 +463,7 @@ app.post('/api/register', upload.single('paymentProof'), async (req, res) => {
       registerNumber: normalizedRegNo,
       department: department.trim(),
       section: section.trim(),
-      festSkill: festSkill.trim(),
+      festSkill: resolvedFestSkill,
       phone: cleanPhone,
       email: email.trim().toLowerCase(),
       paymentProof: req.file ? req.file.filename : null,

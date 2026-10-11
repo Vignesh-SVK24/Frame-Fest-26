@@ -60,9 +60,26 @@ export default function ReviewModal({
             <span className="text-white text-right max-w-[240px] truncate">{formData.email}</span>
           </div>
 
+          <div className="flex justify-between items-start py-1 border-b border-[#1c1530]">
+            <span className="text-neutral-400 text-xs uppercase font-medium pt-0.5">Fest Skill(s)</span>
+            <div className="text-right max-w-[240px]">
+              {Array.isArray(formData.festSkills) && formData.festSkills.length > 0 ? (
+                <div className="flex flex-wrap justify-end gap-1">
+                  {formData.festSkills.map((sk, idx) => (
+                    <span key={idx} className="px-2 py-0.5 rounded bg-[#8b5cf6]/20 border border-[#8b5cf6]/40 text-[#c084fc] text-[11px] font-semibold">
+                      {sk}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-[#c084fc] font-bold">{formData.festSkill || '-'}</span>
+              )}
+            </div>
+          </div>
+
           <div className="flex justify-between items-center py-1 border-b border-[#1c1530]">
-            <span className="text-neutral-400 text-xs uppercase font-medium">Fest Skill</span>
-            <span className="text-[#c084fc] font-bold text-right">{formData.festSkill || '-'}</span>
+            <span className="text-neutral-400 text-xs uppercase font-medium">Venue</span>
+            <span className="text-white font-medium text-right text-xs">{EVENT_CONFIG.venue}</span>
           </div>
 
           <div className="flex justify-between items-center pt-2 text-[#25D366]">

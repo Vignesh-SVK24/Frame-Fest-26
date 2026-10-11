@@ -13,7 +13,8 @@ import {
   Image as ImageIcon,
   Palette,
   Layout,
-  Sparkles
+  Sparkles,
+  MapPin
 } from 'lucide-react';
 import { EVENT_CONFIG } from '../config/eventConfig';
 
@@ -30,6 +31,12 @@ export default function EventDetails() {
       value: EVENT_CONFIG.date,
       subvalue: "Wednesday & Thursday • 2-Day Fest",
       icon: <Calendar className="w-5 h-5 text-[#c084fc]" />
+    },
+    {
+      label: "VENUE",
+      value: EVENT_CONFIG.venue,
+      subvalue: "HICET Campus, Coimbatore",
+      icon: <MapPin className="w-5 h-5 text-[#c084fc]" />
     },
     {
       label: "CATEGORY",
@@ -117,9 +124,7 @@ export default function EventDetails() {
           {details.map((item, idx) => (
             <div
               key={idx}
-              className={`bg-[#130f24]/80 backdrop-blur-sm border border-[#271e46]/80 rounded-xl p-6 transition-all hover:border-[#8b5cf6]/50 shadow-md flex items-start space-x-4 ${
-                idx === 3 ? 'lg:col-span-2' : ''
-              }`}
+              className="bg-[#130f24]/80 backdrop-blur-sm border border-[#271e46]/80 rounded-xl p-6 transition-all hover:border-[#8b5cf6]/50 shadow-md flex items-start space-x-4"
             >
               <div className="p-3 rounded-lg bg-[#1a1433] border border-[#312557] shrink-0">
                 {item.icon}

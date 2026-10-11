@@ -84,7 +84,7 @@ export default function Hero({ onRegisterClick, onExploreClick }) {
               <span>DATES: NOVEMBER 4 & 5, 2026</span>
             </span>
             <span className="text-[#c084fc] font-bold">6 FEST SKILL TRACKS</span>
-            <span>HICET CAMPUS</span>
+            <span>MARUDHAM HALL, HICET</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-center">

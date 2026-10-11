@@ -861,9 +861,13 @@ export default function Admin({ onNavigateHome }) {
                 <div className="text-xs text-neutral-400 flex items-center gap-2 flex-wrap">
                   <span>{quickMatchedParticipant.department} • Section {quickMatchedParticipant.section}</span>
                   {quickMatchedParticipant.festSkill && (
-                    <span className="text-[11px] font-semibold text-[#c084fc] bg-[#8b5cf6]/10 px-2 py-0.5 rounded border border-[#8b5cf6]/30">
-                      {quickMatchedParticipant.festSkill}
-                    </span>
+                    <div className="flex flex-wrap gap-1 items-center">
+                      {quickMatchedParticipant.festSkill.split(',').map((sk, sIdx) => (
+                        <span key={sIdx} className="text-[11px] font-semibold text-[#c084fc] bg-[#8b5cf6]/10 px-2 py-0.5 rounded border border-[#8b5cf6]/30">
+                          {sk.trim()}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
 
@@ -1013,10 +1017,18 @@ export default function Admin({ onNavigateHome }) {
                     </td>
 
                     {/* Fest Skill */}
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span className="text-[11px] font-semibold text-[#c084fc] bg-[#8b5cf6]/10 px-2 py-0.5 rounded border border-[#8b5cf6]/30">
-                        {reg.festSkill || '-'}
-                      </span>
+                    <td className="py-3.5 px-4 max-w-xs">
+                      {reg.festSkill ? (
+                        <div className="flex flex-wrap gap-1">
+                          {reg.festSkill.split(',').map((sk, sIdx) => (
+                            <span key={sIdx} className="text-[11px] font-semibold text-[#c084fc] bg-[#8b5cf6]/10 px-2 py-0.5 rounded border border-[#8b5cf6]/30 whitespace-nowrap">
+                              {sk.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-neutral-500 text-xs">-</span>
+                      )}
                     </td>
 
                     {/* Registration Date */}
@@ -1117,11 +1129,15 @@ export default function Admin({ onNavigateHome }) {
               <div className="text-xs text-neutral-400 space-y-1 border-t border-[#1e1e1e] pt-2">
                 <div>{reg.department} • Sec {reg.section}</div>
                 {reg.festSkill && (
-                  <div className="flex items-center space-x-1.5">
-                    <span className="text-[11px] text-neutral-500">Skill:</span>
-                    <span className="text-[11px] font-semibold text-[#c084fc] bg-[#8b5cf6]/10 px-2 py-0.5 rounded border border-[#8b5cf6]/30">
-                      {reg.festSkill}
-                    </span>
+                  <div className="flex items-start space-x-1.5 pt-0.5">
+                    <span className="text-[11px] text-neutral-500 pt-0.5">Skills:</span>
+                    <div className="flex flex-wrap gap-1">
+                      {reg.festSkill.split(',').map((sk, sIdx) => (
+                        <span key={sIdx} className="text-[11px] font-semibold text-[#c084fc] bg-[#8b5cf6]/10 px-2 py-0.5 rounded border border-[#8b5cf6]/30">
+                          {sk.trim()}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
                 <div className="text-[11px] text-neutral-500">
@@ -1331,9 +1347,21 @@ export default function Admin({ onNavigateHome }) {
                 <span className="text-neutral-500">Section:</span>
                 <span className="text-white font-bold">{selectedParticipant.section}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-[#1c1c1c]">
-                <span className="text-neutral-500">Fest Skill:</span>
-                <span className="text-[#c084fc] font-bold">{selectedParticipant.festSkill || '-'}</span>
+              <div className="flex justify-between items-start py-1 border-b border-[#1c1c1c]">
+                <span className="text-neutral-500 pt-0.5">Fest Skill(s):</span>
+                <div className="text-right max-w-[240px]">
+                  {selectedParticipant.festSkill ? (
+                    <div className="flex flex-wrap justify-end gap-1">
+                      {selectedParticipant.festSkill.split(',').map((sk, sIdx) => (
+                        <span key={sIdx} className="text-[11px] font-semibold text-[#c084fc] bg-[#8b5cf6]/10 px-2 py-0.5 rounded border border-[#8b5cf6]/30">
+                          {sk.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-neutral-500">-</span>
+                  )}
+                </div>
               </div>
               <div className="flex justify-between py-1 border-b border-[#1c1c1c]">
                 <span className="text-neutral-500">Phone:</span>

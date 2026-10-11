@@ -10,6 +10,8 @@ export const EVENT_CONFIG = {
   tagline: "SHOW YOUR SKILLS. CREATE IMPACT.",
   date: "November 4 & 5, 2026",
   fullDate: "Wednesday & Thursday, 4 & 5 November 2026",
+  venue: "Marudham Hall, HICET",
+  venueFull: "Marudham Hall, Hindusthan College of Engineering and Technology (HICET)",
   description: "Showcase your creativity, editing skills and visual storytelling at Frame Fest ’26.",
   aboutDescription: "Frame Fest ’26 is a film and editing fest designed to showcase creativity, storytelling and digital media skills.",
   

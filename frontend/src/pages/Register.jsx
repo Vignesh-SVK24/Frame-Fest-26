@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clapperboard, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Clapperboard, AlertCircle, ArrowLeft, Check } from 'lucide-react';
 import { EVENT_CONFIG } from '../config/eventConfig';
 import WhatsAppSection from '../components/WhatsAppSection';
 import ReviewModal from '../components/ReviewModal';
@@ -16,6 +16,7 @@ export default function Register({ onNavigateHome }) {
     section: '',
     phone: '',
     email: '',
+    festSkills: [],
     festSkill: ''
   });
 
@@ -40,6 +41,46 @@ export default function Register({ onNavigateHome }) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
     setSubmissionError('');
+  };
+
+  // Handle multi-select skill toggling
+  const handleToggleSkill = (skill) => {
+    setFormData((prev) => {
+      const current = prev.festSkills || [];
+      const updated = current.includes(skill)
+        ? current.filter((s) => s !== skill)
+        : [...current, skill];
+      return {
+        ...prev,
+        festSkills: updated,
+        festSkill: updated.join(', ')
+      };
+    });
+    if (errors.festSkills || errors.festSkill) {
+      setErrors((prev) => ({ ...prev, festSkills: '', festSkill: '' }));
+    }
+    setSubmissionError('');
+  };
+
+  // Select all skills
+  const handleSelectAllSkills = () => {
+    setFormData((prev) => ({
+      ...prev,
+      festSkills: [...EVENT_CONFIG.festSkillOptions],
+      festSkill: EVENT_CONFIG.festSkillOptions.join(', ')
+    }));
+    if (errors.festSkills || errors.festSkill) {
+      setErrors((prev) => ({ ...prev, festSkills: '', festSkill: '' }));
+    }
+  };
+
+  // Clear all skills
+  const handleClearAllSkills = () => {
+    setFormData((prev) => ({
+      ...prev,
+      festSkills: [],
+      festSkill: ''
+    }));
   };
 
   // Validate all participant fields
@@ -76,9 +117,9 @@ export default function Register({ onNavigateHome }) {
       newErrors.email = 'Please enter a valid email address.';
     }
 
-    // Fest Skill validation
-    if (!formData.festSkill) {
-      newErrors.festSkill = 'Please select your Fest Skill.';
+    // Fest Skills validation (one or more required)
+    if (!formData.festSkills || formData.festSkills.length === 0) {
+      newErrors.festSkills = 'Please select at least one Fest Skill.';
     }
 
     setErrors(newErrors);
@@ -103,8 +144,14 @@ export default function Register({ onNavigateHome }) {
         ? otherDepartment.trim()
         : formData.department;
 
+    const skillsString = (formData.festSkills && formData.festSkills.length > 0)
+      ? formData.festSkills.join(', ')
+      : (formData.festSkill || '');
+
     const submissionPayload = {
       ...formData,
+      festSkill: skillsString,
+      festSkills: formData.festSkills,
       department: resolvedDepartment
     };
 
@@ -178,7 +225,7 @@ export default function Register({ onNavigateHome }) {
               register_number: formData.registerNumber.trim().toUpperCase(),
               department: resolvedDepartment,
               section: formData.section.trim(),
-              fest_skill: formData.festSkill,
+              fest_skill: skillsString,
               phone: formData.phone.replace(/\D/g, ''),
               email: formData.email.trim().toLowerCase(),
               created_at: now.toISOString(),
@@ -543,41 +590,92 @@ export default function Register({ onNavigateHome }) {
                 )}
               </div>
 
-              {/* Field 7: Fest Skills (Near Email) */}
+              {/* Field 7: Fest Skills (Near Email - Multi-Select) */}
               <div className="sm:col-span-2">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300">
-                    FEST SKILLS <span className="text-[#c084fc]">*</span>
-                  </label>
-                  <span className="text-[11px] font-mono text-[#c084fc] font-semibold">
-                    SELECT 1 OF 6 CATEGORIES
-                  </span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2.5 gap-1.5">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300">
+                      FEST SKILLS <span className="text-[#c084fc]">*</span>
+                    </label>
+                    <span className="text-[11px] text-neutral-400">
+                      Select one or more skills to participate in ({formData.festSkills?.length || 0} of {EVENT_CONFIG.festSkillOptions.length} selected)
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-xs font-mono">
+                    <button
+                      type="button"
+                      onClick={handleSelectAllSkills}
+                      className="text-[11px] text-[#c084fc] hover:text-white underline hover:no-underline transition-colors"
+                    >
+                      Select All
+                    </button>
+                    <span className="text-neutral-600">•</span>
+                    <button
+                      type="button"
+                      onClick={handleClearAllSkills}
+                      className="text-[11px] text-neutral-400 hover:text-white underline hover:no-underline transition-colors"
+                    >
+                      Clear
+                    </button>
+                  </div>
                 </div>
-                <select
-                  name="festSkill"
-                  value={formData.festSkill}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3.5 rounded-lg bg-[#18122c] border text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#8b5cf6] transition-all ${
-                    errors.festSkill ? 'border-red-500 bg-red-950/10' : 'border-[#2f2352] focus:border-[#8b5cf6]'
-                  }`}
-                >
-                  <option value="" className="bg-[#18122c] text-neutral-500">
-                    Choose your Fest Skill / Category...
-                  </option>
-                  {EVENT_CONFIG.festSkillOptions.map((skill, idx) => (
-                    <option key={idx} value={skill} className="bg-[#18122c] text-white">
-                      {idx + 1}. {skill}
-                    </option>
-                  ))}
-                </select>
-                {errors.festSkill ? (
-                  <p className="text-xs text-red-400 mt-1.5 flex items-center space-x-1">
+
+                {/* 6 Skill Cards Multi-Select Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                  {EVENT_CONFIG.festSkillOptions.map((skill, idx) => {
+                    const isSelected = formData.festSkills?.includes(skill);
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleToggleSkill(skill)}
+                        className={`p-3.5 rounded-xl border text-left transition-all duration-200 flex items-center justify-between group cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#221844] border-[#8b5cf6] shadow-[0_0_15px_rgba(139,92,246,0.3)] ring-1 ring-[#8b5cf6]'
+                            : errors.festSkills
+                            ? 'bg-[#18122c] border-red-500/50 hover:border-[#8b5cf6]/50'
+                            : 'bg-[#18122c] border-[#2f2352] hover:border-[#8b5cf6]/50 hover:bg-[#1d1636]'
+                        }`}
+                        aria-pressed={isSelected}
+                      >
+                        <div className="flex items-center space-x-3">
+                          {/* Checkbox Icon */}
+                          <div
+                            className={`w-5 h-5 rounded-md flex items-center justify-center transition-all shrink-0 ${
+                              isSelected
+                                ? 'bg-[#8b5cf6] text-white shadow-sm'
+                                : 'border border-[#453472] bg-[#100c1e] text-transparent group-hover:border-[#8b5cf6]'
+                            }`}
+                          >
+                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-bold text-white block leading-tight">
+                              {skill}
+                            </span>
+                            <span className="text-[10px] text-neutral-400 font-mono mt-0.5 block">
+                              Track 0{idx + 1}
+                            </span>
+                          </div>
+                        </div>
+                        {isSelected && (
+                          <span className="text-[10px] font-mono font-bold text-[#c084fc] px-1.5 py-0.5 rounded bg-[#8b5cf6]/20 shrink-0 ml-2">
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {errors.festSkills ? (
+                  <p className="text-xs text-red-400 mt-2 flex items-center space-x-1">
                     <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                    <span>{errors.festSkill}</span>
+                    <span>{errors.festSkills}</span>
                   </p>
                 ) : (
-                  <p className="text-[11px] text-neutral-400 mt-1.5">
-                    Options: Videography • Video Editing • Photography • Photo Editing • Poster Designing • Web Designing
+                  <p className="text-[11px] text-neutral-400 mt-2">
+                    💡 You can choose multiple skills if you wish to participate in multiple categories.
                   </p>
                 )}
               </div>
