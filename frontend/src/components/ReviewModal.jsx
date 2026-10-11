@@ -60,6 +60,11 @@ export default function ReviewModal({
             <span className="text-white text-right max-w-[240px] truncate">{formData.email}</span>
           </div>
 
+          <div className="flex justify-between items-center py-1 border-b border-[#1c1530]">
+            <span className="text-neutral-400 text-xs uppercase font-medium">Fest Skill</span>
+            <span className="text-[#c084fc] font-bold text-right">{formData.festSkill || '-'}</span>
+          </div>
+
           <div className="flex justify-between items-center pt-2 text-[#25D366]">
             <span className="text-neutral-400 text-xs uppercase font-medium flex items-center space-x-1">
               <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />

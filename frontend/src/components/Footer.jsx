@@ -24,7 +24,7 @@ export default function Footer({ onNavigateAdmin }) {
         <div className="text-xs sm:text-sm text-neutral-400 space-y-1">
           <p>{EVENT_CONFIG.department}</p>
           <p className="font-semibold text-neutral-300">{EVENT_CONFIG.college}</p>
-          <p className="text-[#c084fc] font-medium pt-1">Event Date: {EVENT_CONFIG.date}</p>
+          <p className="text-[#c084fc] font-medium pt-1">Event Dates: {EVENT_CONFIG.date}</p>
         </div>
 
         {/* Copyright & subtle admin link */}

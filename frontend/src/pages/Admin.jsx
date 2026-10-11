@@ -44,7 +44,7 @@ export default function Admin({ onNavigateHome }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Attendance Mode state (Event Date: 4 November 2026)
+  // Attendance Mode state (Event Dates: November 4 & 5, 2026)
   const eventDateObj = useMemo(() => new Date('2026-11-04T00:00:00'), []);
   const isEventDayOrAfter = useMemo(() => new Date() >= eventDateObj, [eventDateObj]);
   const [attendanceOpen, setAttendanceOpen] = useState(false);
@@ -188,6 +188,7 @@ export default function Admin({ onNavigateHome }) {
     registerNumber: r.register_number,
     department: r.department,
     section: r.section,
+    festSkill: r.fest_skill || r.festSkill || '',
     phone: r.phone,
     email: r.email,
     paymentProof: r.payment_proof,
@@ -475,6 +476,7 @@ export default function Admin({ onNavigateHome }) {
         'Register Number',
         'Department',
         'Section',
+        'Fest Skill',
         'Registration Date',
         'Attendance Status',
         'Attendance Date',
@@ -494,6 +496,7 @@ export default function Admin({ onNavigateHome }) {
         escapeCsv(r.registerNumber),
         escapeCsv(r.department),
         escapeCsv(r.section),
+        escapeCsv(r.festSkill || '-'),
         escapeCsv(r.registrationDate || r.createdAt || ''),
         escapeCsv(r.attendanceStatus || 'PENDING'),
         escapeCsv(r.attendanceDate || '-'),
@@ -763,7 +766,7 @@ export default function Admin({ onNavigateHome }) {
         </div>
       </div>
 
-      {/* Event Attendance Gate Banner (Event Date: 4 November 2026) */}
+      {/* Event Attendance Gate Banner (Event Dates: November 4 & 5, 2026) */}
       <div className="bg-[#121212] border border-[#262626] rounded-xl p-5 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-start space-x-3.5">
           <div className="p-3 rounded-lg bg-[#181818] border border-[#2e2e2e] text-[#8b5cf6] shrink-0">
@@ -772,7 +775,7 @@ export default function Admin({ onNavigateHome }) {
           <div>
             <div className="flex items-center space-x-2">
               <span className="text-xs font-mono font-bold text-[#c084fc] uppercase">
-                EVENT DATE: {EVENT_CONFIG.date.toUpperCase()}
+                EVENT DATES: {EVENT_CONFIG.date.toUpperCase()}
               </span>
               {!isEventDayOrAfter && !attendanceOpen && (
                 <span className="text-[10px] px-2 py-0.5 rounded bg-yellow-950/60 text-yellow-400 border border-yellow-800/40 uppercase font-bold">
@@ -855,8 +858,13 @@ export default function Admin({ onNavigateHome }) {
                   {quickMatchedParticipant.name}
                 </div>
 
-                <div className="text-xs text-neutral-400">
-                  {quickMatchedParticipant.department} • Section {quickMatchedParticipant.section}
+                <div className="text-xs text-neutral-400 flex items-center gap-2 flex-wrap">
+                  <span>{quickMatchedParticipant.department} • Section {quickMatchedParticipant.section}</span>
+                  {quickMatchedParticipant.festSkill && (
+                    <span className="text-[11px] font-semibold text-[#c084fc] bg-[#8b5cf6]/10 px-2 py-0.5 rounded border border-[#8b5cf6]/30">
+                      {quickMatchedParticipant.festSkill}
+                    </span>
+                  )}
                 </div>
 
                 {quickMatchedParticipant.markedBy && (
@@ -963,6 +971,7 @@ export default function Admin({ onNavigateHome }) {
                 <th className="py-3.5 px-4">Student Name</th>
                 <th className="py-3.5 px-4">Register Number</th>
                 <th className="py-3.5 px-4">Dept / Section</th>
+                <th className="py-3.5 px-4">Fest Skill</th>
                 <th className="py-3.5 px-4">Registration Date</th>
                 <th className="py-3.5 px-4">Attendance</th>
                 <th className="py-3.5 px-4">Attendance Time</th>
@@ -973,7 +982,7 @@ export default function Admin({ onNavigateHome }) {
             <tbody className="divide-y divide-[#1e1e1e]">
               {registrations.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="py-12 text-center text-neutral-500">
+                  <td colSpan="10" className="py-12 text-center text-neutral-500">
                     {loading ? 'Loading participants...' : 'No participant records found.'}
                   </td>
                 </tr>
@@ -1001,6 +1010,13 @@ export default function Admin({ onNavigateHome }) {
                         {reg.department}
                       </div>
                       <div className="text-[10px] text-neutral-500 font-mono">Sec {reg.section}</div>
+                    </td>
+
+                    {/* Fest Skill */}
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      <span className="text-[11px] font-semibold text-[#c084fc] bg-[#8b5cf6]/10 px-2 py-0.5 rounded border border-[#8b5cf6]/30">
+                        {reg.festSkill || '-'}
+                      </span>
                     </td>
 
                     {/* Registration Date */}
@@ -1097,14 +1113,22 @@ export default function Admin({ onNavigateHome }) {
                 <div className="text-xs font-mono text-neutral-400">{reg.registerNumber}</div>
               </div>
 
-              {/* Dept, Section, Registration Date */}
-              <div className="text-xs text-neutral-400 space-y-0.5 border-t border-[#1e1e1e] pt-2">
+              {/* Dept, Section, Fest Skill, Registration Date */}
+              <div className="text-xs text-neutral-400 space-y-1 border-t border-[#1e1e1e] pt-2">
                 <div>{reg.department} • Sec {reg.section}</div>
+                {reg.festSkill && (
+                  <div className="flex items-center space-x-1.5">
+                    <span className="text-[11px] text-neutral-500">Skill:</span>
+                    <span className="text-[11px] font-semibold text-[#c084fc] bg-[#8b5cf6]/10 px-2 py-0.5 rounded border border-[#8b5cf6]/30">
+                      {reg.festSkill}
+                    </span>
+                  </div>
+                )}
                 <div className="text-[11px] text-neutral-500">
                   Registered: {reg.registrationDate || new Date(reg.createdAt).toLocaleDateString()}
                 </div>
                 {reg.markedBy && (
-                  <div className="text-[11px] text-neutral-400 font-mono pt-1">
+                  <div className="text-[11px] text-neutral-400 font-mono pt-0.5">
                     Marked by {reg.markedBy} ({reg.attendanceTime})
                   </div>
                 )}
@@ -1306,6 +1330,10 @@ export default function Admin({ onNavigateHome }) {
               <div className="flex justify-between py-1 border-b border-[#1c1c1c]">
                 <span className="text-neutral-500">Section:</span>
                 <span className="text-white font-bold">{selectedParticipant.section}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-[#1c1c1c]">
+                <span className="text-neutral-500">Fest Skill:</span>
+                <span className="text-[#c084fc] font-bold">{selectedParticipant.festSkill || '-'}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-[#1c1c1c]">
                 <span className="text-neutral-500">Phone:</span>

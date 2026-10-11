@@ -15,7 +15,8 @@ export default function Register({ onNavigateHome }) {
     department: '',
     section: '',
     phone: '',
-    email: ''
+    email: '',
+    festSkill: ''
   });
 
   // Custom typed department when "Other" is chosen
@@ -73,6 +74,11 @@ export default function Register({ onNavigateHome }) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) {
       newErrors.email = 'Please enter a valid email address.';
+    }
+
+    // Fest Skill validation
+    if (!formData.festSkill) {
+      newErrors.festSkill = 'Please select your Fest Skill.';
     }
 
     setErrors(newErrors);
@@ -172,6 +178,7 @@ export default function Register({ onNavigateHome }) {
               register_number: formData.registerNumber.trim().toUpperCase(),
               department: resolvedDepartment,
               section: formData.section.trim(),
+              fest_skill: formData.festSkill,
               phone: formData.phone.replace(/\D/g, ''),
               email: formData.email.trim().toLowerCase(),
               created_at: now.toISOString(),
@@ -514,7 +521,7 @@ export default function Register({ onNavigateHome }) {
               </div>
 
               {/* Field 6: Email */}
-              <div className="sm:col-span-2">
+              <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300 mb-2">
                   EMAIL ADDRESS <span className="text-[#c084fc]">*</span>
                 </label>
@@ -523,7 +530,7 @@ export default function Register({ onNavigateHome }) {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="Enter your college or personal email"
+                  placeholder="Enter your email address"
                   className={`w-full px-4 py-3 rounded-lg bg-[#18122c] border text-white placeholder-neutral-500 text-sm focus:outline-none focus:ring-1 focus:ring-[#8b5cf6] transition-all ${
                     errors.email ? 'border-red-500 bg-red-950/10' : 'border-[#2f2352] focus:border-[#8b5cf6]'
                   }`}
@@ -532,6 +539,45 @@ export default function Register({ onNavigateHome }) {
                   <p className="text-xs text-red-400 mt-1.5 flex items-center space-x-1">
                     <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                     <span>{errors.email}</span>
+                  </p>
+                )}
+              </div>
+
+              {/* Field 7: Fest Skills (Near Email) */}
+              <div className="sm:col-span-2">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-300">
+                    FEST SKILLS <span className="text-[#c084fc]">*</span>
+                  </label>
+                  <span className="text-[11px] font-mono text-[#c084fc] font-semibold">
+                    SELECT 1 OF 6 CATEGORIES
+                  </span>
+                </div>
+                <select
+                  name="festSkill"
+                  value={formData.festSkill}
+                  onChange={handleInputChange}
+                  className={`w-full px-4 py-3.5 rounded-lg bg-[#18122c] border text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#8b5cf6] transition-all ${
+                    errors.festSkill ? 'border-red-500 bg-red-950/10' : 'border-[#2f2352] focus:border-[#8b5cf6]'
+                  }`}
+                >
+                  <option value="" className="bg-[#18122c] text-neutral-500">
+                    Choose your Fest Skill / Category...
+                  </option>
+                  {EVENT_CONFIG.festSkillOptions.map((skill, idx) => (
+                    <option key={idx} value={skill} className="bg-[#18122c] text-white">
+                      {idx + 1}. {skill}
+                    </option>
+                  ))}
+                </select>
+                {errors.festSkill ? (
+                  <p className="text-xs text-red-400 mt-1.5 flex items-center space-x-1">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{errors.festSkill}</span>
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-neutral-400 mt-1.5">
+                    Options: Videography • Video Editing • Photography • Photo Editing • Poster Designing • Web Designing
                   </p>
                 )}
               </div>

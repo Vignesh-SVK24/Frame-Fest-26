@@ -8,8 +8,8 @@ export const EVENT_CONFIG = {
   category: "Film & Editing Fest",
   subtitle: "A FILM & EDITING FEST",
   tagline: "SHOW YOUR SKILLS. CREATE IMPACT.",
-  date: "4 November 2026",
-  fullDate: "Wednesday, 4 November 2026",
+  date: "November 4 & 5, 2026",
+  fullDate: "Wednesday & Thursday, 4 & 5 November 2026",
   description: "Showcase your creativity, editing skills and visual storytelling at Frame Fest ’26.",
   aboutDescription: "Frame Fest ’26 is a film and editing fest designed to showcase creativity, storytelling and digital media skills.",
   
@@ -97,5 +97,61 @@ export const EVENT_CONFIG = {
       description: "Create content that makes an impact.",
       icon: "clapperboard"
     }
+  ],
+
+  // 6 Official Competition / Fest Skill Categories
+  festSkills: [
+    {
+      id: "videography",
+      title: "VIDEOGRAPHY",
+      name: "Videography",
+      description: "Capture cinematic frames, camera movement, composition, and visual storytelling.",
+      icon: "video"
+    },
+    {
+      id: "video-editing",
+      title: "VIDEO EDITING",
+      name: "Video Editing",
+      description: "Demonstrate cuts, color grading, motion pacing, VFX rhythm, and sound design mastery.",
+      icon: "film"
+    },
+    {
+      id: "photography",
+      title: "PHOTOGRAPHY",
+      name: "Photography",
+      description: "Frame powerful still moments, creative perspectives, lighting, and portrait aesthetics.",
+      icon: "camera"
+    },
+    {
+      id: "photo-editing",
+      title: "PHOTO EDITING",
+      name: "Photo Editing",
+      description: "Digital retouching, aesthetic mood creation, tone grading, and color balance.",
+      icon: "image"
+    },
+    {
+      id: "poster-designing",
+      title: "POSTER DESIGNING",
+      name: "Poster Designing",
+      description: "Create eye-catching movie posters, typography layouts, and cinematic digital artwork.",
+      icon: "palette"
+    },
+    {
+      id: "web-designing",
+      title: "WEB DESIGNING",
+      name: "Web Designing",
+      description: "Craft modern UI/UX digital experiences, responsive layouts, and creative web styling.",
+      icon: "layout"
+    }
+  ],
+
+  // Form options list
+  festSkillOptions: [
+    "Videography",
+    "Video Editing",
+    "Photography",
+    "Photo Editing",
+    "Poster Designing",
+    "Web Designing"
   ]
 };

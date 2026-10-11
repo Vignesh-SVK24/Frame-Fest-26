@@ -180,6 +180,7 @@ function mapFromDb(row) {
     registerNumber: row.register_number,
     department: row.department,
     section: row.section,
+    festSkill: row.fest_skill || row.festSkill || '',
     phone: row.phone,
     email: row.email,
     paymentProof: row.payment_proof,
@@ -202,6 +203,7 @@ function mapToDb(record) {
     register_number: record.registerNumber,
     department: record.department,
     section: record.section,
+    fest_skill: record.festSkill || null,
     phone: record.phone,
     email: record.email,
     payment_proof: record.paymentProof || null,
@@ -365,7 +367,7 @@ app.get('/api/check-duplicate/:registerNumber', async (req, res) => {
 // Participant registration endpoint
 app.post('/api/register', upload.single('paymentProof'), async (req, res) => {
   try {
-    const { name, registerNumber, department, section, phone, email } = req.body;
+    const { name, registerNumber, department, section, phone, email, festSkill } = req.body;
 
     // Validation
     if (!name || !name.trim()) {
@@ -391,6 +393,11 @@ app.post('/api/register', upload.single('paymentProof'), async (req, res) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email.trim())) {
       return res.status(400).json({ success: false, message: 'Please enter a valid email address.' });
+    }
+
+    // Fest Skill validation
+    if (!festSkill || !festSkill.trim()) {
+      return res.status(400).json({ success: false, message: 'Please select your Fest Skill.' });
     }
 
     const normalizedRegNo = registerNumber.trim().toUpperCase();
@@ -438,6 +445,7 @@ app.post('/api/register', upload.single('paymentProof'), async (req, res) => {
       registerNumber: normalizedRegNo,
       department: department.trim(),
       section: section.trim(),
+      festSkill: festSkill.trim(),
       phone: cleanPhone,
       email: email.trim().toLowerCase(),
       paymentProof: req.file ? req.file.filename : null,
@@ -708,6 +716,7 @@ app.get('/api/admin/registrations', requireAdmin, async (req, res) => {
         (r.registrationId && r.registrationId.toLowerCase().includes(q)) ||
         (r.name && r.name.toLowerCase().includes(q)) ||
         (r.registerNumber && r.registerNumber.toLowerCase().includes(q)) ||
+        (r.festSkill && r.festSkill.toLowerCase().includes(q)) ||
         (r.email && r.email.toLowerCase().includes(q)) ||
         (r.phone && r.phone.includes(q))
     );
@@ -849,6 +858,7 @@ app.get('/api/admin/export-csv', requireAdmin, async (req, res) => {
     'Register Number',
     'Department',
     'Section',
+    'Fest Skill',
     'Registration Date',
     'Attendance Status',
     'Attendance Date',
@@ -868,6 +878,7 @@ app.get('/api/admin/export-csv', requireAdmin, async (req, res) => {
     escapeCsv(r.registerNumber),
     escapeCsv(r.department),
     escapeCsv(r.section),
+    escapeCsv(r.festSkill || '-'),
     escapeCsv(r.registrationDate || (r.createdAt ? formatReadableFullDateTime(new Date(r.createdAt)) : '')),
     escapeCsv(r.attendanceStatus || 'PENDING'),
     escapeCsv(r.attendanceDate || '-'),

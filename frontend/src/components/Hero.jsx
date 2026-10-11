@@ -77,32 +77,23 @@ export default function Hero({ onRegisterClick, onExploreClick }) {
         <WhyJoinSection />
 
         {/* Cinematic Timeline Decorative Strip */}
-        <div className="max-w-3xl mx-auto border border-[#2c224b] bg-[#120e22]/85 rounded-xl p-4 sm:p-6 backdrop-blur-md shadow-2xl">
-          <div className="flex items-center justify-between text-xs text-neutral-400 font-mono tracking-widest mb-3 border-b border-[#251c3d] pb-2">
+        <div className="max-w-4xl mx-auto border border-[#2c224b] bg-[#120e22]/85 rounded-xl p-4 sm:p-6 backdrop-blur-md shadow-2xl">
+          <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-400 font-mono tracking-widest mb-3 border-b border-[#251c3d] pb-2 gap-1.5">
             <span className="flex items-center space-x-1.5">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              <span>TIMELINE 00:00:18:26</span>
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              <span>DATES: NOVEMBER 4 & 5, 2026</span>
             </span>
-            <span className="text-[#c084fc] font-bold">CINEMATIC 4K 24FPS</span>
+            <span className="text-[#c084fc] font-bold">6 FEST SKILL TRACKS</span>
             <span>HICET CAMPUS</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="p-2.5 rounded bg-[#17122a]/90 border border-[#2f2352] hover:border-[#8b5cf6]/50 transition-colors">
-              <VideoIcon className="w-4 h-4 text-[#c084fc] mx-auto mb-1" />
-              <div className="text-xs font-bold text-white uppercase">Short Film</div>
-              <div className="text-[10px] text-neutral-400">Cinematography</div>
-            </div>
-            <div className="p-2.5 rounded bg-[#17122a]/90 border border-[#2f2352] hover:border-[#8b5cf6]/50 transition-colors">
-              <Sliders className="w-4 h-4 text-[#c084fc] mx-auto mb-1" />
-              <div className="text-xs font-bold text-white uppercase">Video Editing</div>
-              <div className="text-[10px] text-neutral-400">VFX & Grading</div>
-            </div>
-            <div className="p-2.5 rounded bg-[#17122a]/90 border border-[#2f2352] hover:border-[#8b5cf6]/50 transition-colors">
-              <Film className="w-4 h-4 text-[#c084fc] mx-auto mb-1" />
-              <div className="text-xs font-bold text-white uppercase">Poster & Reels</div>
-              <div className="text-[10px] text-neutral-400">Visual Impact</div>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-center">
+            {EVENT_CONFIG.festSkillOptions.map((skill, idx) => (
+              <div key={idx} className="p-2.5 rounded bg-[#17122a]/90 border border-[#2f2352] hover:border-[#8b5cf6]/50 transition-colors">
+                <div className="text-xs font-bold text-white uppercase truncate" title={skill}>{skill}</div>
+                <div className="text-[10px] text-[#c084fc] font-mono mt-0.5">Track 0{idx + 1}</div>
+              </div>
+            ))}
           </div>
         </div>
 

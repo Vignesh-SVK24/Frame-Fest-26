@@ -142,11 +142,12 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
         ctx.stroke();
       };
 
-      drawRow('Participant Name', registrationData?.name, 470);
-      drawRow('Register Number', registrationData?.registerNumber, 530);
-      drawRow('Department', registrationData?.department, 590);
-      drawRow('Section', `Section ${registrationData?.section}`, 650);
-      drawRow('Event Date', EVENT_CONFIG.date, 710);
+      drawRow('Participant Name', registrationData?.name, 465);
+      drawRow('Register Number', registrationData?.registerNumber, 515);
+      drawRow('Department', registrationData?.department, 565);
+      drawRow('Section', `Section ${registrationData?.section}`, 615);
+      drawRow('Fest Skill', registrationData?.festSkill || 'General Participant', 665);
+      drawRow('Event Dates', EVENT_CONFIG.date, 715);
 
       // Status Badge
       ctx.textAlign = 'center';
@@ -411,8 +412,12 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
                     <td class="value">Section ${registrationData?.section || '-'}</td>
                   </tr>
                   <tr>
-                    <td class="label">Event Date</td>
-                    <td class="value">${EVENT_CONFIG.date} (Full Day)</td>
+                    <td class="label">Fest Skill</td>
+                    <td class="value">${registrationData?.festSkill || 'General Participant'}</td>
+                  </tr>
+                  <tr>
+                    <td class="label">Event Dates</td>
+                    <td class="value">${EVENT_CONFIG.date} (2-Day Fest)</td>
                   </tr>
                   <tr>
                     <td class="label">Venue</td>
@@ -530,11 +535,18 @@ export default function SuccessCard({ registrationData, onGoHome, onRegisterAnot
             </span>
           )}
 
-          {/* Participant Name & Date */}
+          {/* Participant Name, Fest Skill & Date */}
           <div className="pt-4 border-t border-[#231b3d] flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-300 gap-2">
-            <div>
-              <span className="text-neutral-500">PARTICIPANT: </span>
-              <span className="font-bold text-white">{registrationData?.name}</span>
+            <div className="flex items-center flex-wrap gap-2 justify-center sm:justify-start">
+              <div>
+                <span className="text-neutral-500">PARTICIPANT: </span>
+                <span className="font-bold text-white">{registrationData?.name}</span>
+              </div>
+              {registrationData?.festSkill && (
+                <span className="px-2 py-0.5 rounded bg-[#8b5cf6]/20 text-[#c084fc] font-semibold border border-[#8b5cf6]/40 text-[11px]">
+                  {registrationData.festSkill}
+                </span>
+              )}
             </div>
             <div className="flex items-center space-x-1.5 font-bold text-white">
               <Calendar className="w-3.5 h-3.5 text-[#c084fc]" />
