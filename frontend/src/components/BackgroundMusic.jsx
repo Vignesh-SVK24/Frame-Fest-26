@@ -5,35 +5,40 @@ export default function BackgroundMusic({ isHome = false }) {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const hasInteractedRef = useRef(false);
+  const hasStartedRef = useRef(false);
 
-  // Safe encoded URL for filename with spaces and double extension
+  // Safe encoded URLs for cross-browser & mobile compatibility
   const baseUrl = import.meta.env.BASE_URL || '/';
   const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  const audioSrc = encodeURI(`${cleanBase}audio/frame fest music.mp3.mpeg`);
+  const audioSrcClean = `${cleanBase}audio/frame-fest-music.mp3`;
+  const audioSrcLegacy = encodeURI(`${cleanBase}audio/frame fest music.mp3.mpeg`);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
+    // Remove legacy flag from previous versions that prevented auto-play
+    try {
+      localStorage.removeItem('frameFestMusicEnabled');
+    } catch (_) {}
+
     // Set standard background volume to 25%
     audio.volume = 0.25;
     audio.loop = true;
 
-    // Check if user previously explicitly chose to mute
+    // Check if user explicitly muted in the current version
     let userExplicitlyMuted = false;
     try {
-      userExplicitlyMuted =
-        localStorage.getItem('frameFestMusicMuted') === 'true' ||
-        localStorage.getItem('frameFestMusicEnabled') === 'false';
+      userExplicitlyMuted = localStorage.getItem('frameFestMusicMuted') === 'true';
     } catch (_) {}
 
     setIsMuted(userExplicitlyMuted);
 
-    // Audio event listeners
+    // Audio lifecycle listeners
     const handlePlay = () => {
       setIsPlaying(true);
       setIsMuted(false);
+      hasStartedRef.current = true;
     };
     const handlePause = () => {
       setIsPlaying(false);
@@ -46,23 +51,29 @@ export default function BackgroundMusic({ isHome = false }) {
     audio.addEventListener('pause', handlePause);
     audio.addEventListener('error', handleError);
 
-    // One-time interaction fallback if browser blocks unprompted autoplay
-    const interactionEvents = ['click', 'touchstart', 'pointerdown', 'keydown', 'scroll'];
+    // User gesture handler for browsers with strict unmuted autoplay policies
+    const interactionEvents = [
+      'click',
+      'touchstart',
+      'touchend',
+      'pointerdown',
+      'mousedown',
+      'keydown',
+      'scroll'
+    ];
 
     const handleUserGesture = () => {
-      if (hasInteractedRef.current) return;
+      if (hasStartedRef.current) return;
       let checkMuted = false;
       try {
-        checkMuted =
-          localStorage.getItem('frameFestMusicMuted') === 'true' ||
-          localStorage.getItem('frameFestMusicEnabled') === 'false';
+        checkMuted = localStorage.getItem('frameFestMusicMuted') === 'true';
       } catch (_) {}
 
       if (!checkMuted && audioRef.current) {
         audioRef.current
           .play()
           .then(() => {
-            hasInteractedRef.current = true;
+            hasStartedRef.current = true;
             removeGestureListeners();
           })
           .catch(() => {});
@@ -72,12 +83,14 @@ export default function BackgroundMusic({ isHome = false }) {
     const addGestureListeners = () => {
       interactionEvents.forEach((ev) => {
         window.addEventListener(ev, handleUserGesture, { once: true, passive: true });
+        document.addEventListener(ev, handleUserGesture, { once: true, passive: true });
       });
     };
 
     const removeGestureListeners = () => {
       interactionEvents.forEach((ev) => {
         window.removeEventListener(ev, handleUserGesture);
+        document.removeEventListener(ev, handleUserGesture);
       });
     };
 
@@ -87,10 +100,10 @@ export default function BackgroundMusic({ isHome = false }) {
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
-            hasInteractedRef.current = true;
+            hasStartedRef.current = true;
           })
           .catch(() => {
-            // Autoplay blocked before user gesture; hook into first user action
+            // Autoplay blocked by browser policy prior to user gesture; listen for first interaction
             addGestureListeners();
           });
       } else {
@@ -112,17 +125,16 @@ export default function BackgroundMusic({ isHome = false }) {
     if (!audio) return;
 
     if (isPlaying) {
-      // Mute (pause playback)
+      // Mute (pause audio)
       audio.pause();
       setIsPlaying(false);
       setIsMuted(true);
-      hasInteractedRef.current = true;
+      hasStartedRef.current = true;
       try {
         localStorage.setItem('frameFestMusicMuted', 'true');
-        localStorage.setItem('frameFestMusicEnabled', 'false');
       } catch (_) {}
     } else {
-      // Unmute (start/resume playback)
+      // Unmute (play audio)
       audio.volume = 0.25;
       const playPromise = audio.play();
       if (playPromise !== undefined) {
@@ -130,14 +142,13 @@ export default function BackgroundMusic({ isHome = false }) {
           .then(() => {
             setIsPlaying(true);
             setIsMuted(false);
-            hasInteractedRef.current = true;
+            hasStartedRef.current = true;
             try {
               localStorage.setItem('frameFestMusicMuted', 'false');
-              localStorage.setItem('frameFestMusicEnabled', 'true');
             } catch (_) {}
           })
           .catch((err) => {
-            console.warn('Audio playback not permitted or failed:', err?.message || err);
+            console.warn('Audio playback error:', err?.message || err);
             setIsPlaying(false);
           });
       }
@@ -153,8 +164,9 @@ export default function BackgroundMusic({ isHome = false }) {
         preload="auto"
         aria-hidden="true"
       >
-        <source src={audioSrc} type="audio/mpeg" />
-        <source src={audioSrc} type="audio/mp3" />
+        <source src={audioSrcClean} type="audio/mp3" />
+        <source src={audioSrcClean} type="audio/mpeg" />
+        <source src={audioSrcLegacy} type="audio/mpeg" />
       </audio>
 
       {/* Floating Music Control Button */}
@@ -177,7 +189,7 @@ export default function BackgroundMusic({ isHome = false }) {
               : 'bg-[#100d1e]/90 border border-[#2c224b] hover:border-[#8b5cf6]/60 hover:bg-[#1a1433] hover:scale-105 shadow-lg'
           }`}
         >
-          {/* Subtle ambient active pulse ring (respects prefers-reduced-motion) */}
+          {/* Subtle ambient active pulse ring */}
           {isPlaying && (
             <span
               className="absolute inset-0 rounded-full border border-[#8b5cf6]/40 motion-safe:animate-ping pointer-events-none opacity-40"
