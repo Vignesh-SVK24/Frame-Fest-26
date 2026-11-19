@@ -81,7 +81,7 @@ export default function Hero({ onRegisterClick, onExploreClick }) {
           <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-400 font-mono tracking-widest mb-3 border-b border-[#251c3d] pb-2 gap-1.5">
             <span className="flex items-center space-x-1.5">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-              <span>DATES: NOVEMBER 4 & 5, 2026</span>
+              <span>DATES: {EVENT_CONFIG.date.toUpperCase()}</span>
             </span>
             <span className="text-[#c084fc] font-bold">6 FEST SKILL TRACKS</span>
             <span>MARUDHAM HALL, HICET</span>

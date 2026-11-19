@@ -44,8 +44,8 @@ export default function Admin({ onNavigateHome }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Attendance Mode state (Event Dates: November 4 & 5, 2026)
-  const eventDateObj = useMemo(() => new Date('2026-11-04T00:00:00'), []);
+  // Attendance Mode state (Event Dates: November 30 & December 1, 2026)
+  const eventDateObj = useMemo(() => new Date('2026-11-30T00:00:00'), []);
   const isEventDayOrAfter = useMemo(() => new Date() >= eventDateObj, [eventDateObj]);
   const [attendanceOpen, setAttendanceOpen] = useState(false);
 
@@ -766,7 +766,7 @@ export default function Admin({ onNavigateHome }) {
         </div>
       </div>
 
-      {/* Event Attendance Gate Banner (Event Dates: November 4 & 5, 2026) */}
+      {/* Event Attendance Gate Banner (Event Dates: November 30 & December 1, 2026) */}
       <div className="bg-[#121212] border border-[#262626] rounded-xl p-5 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-start space-x-3.5">
           <div className="p-3 rounded-lg bg-[#181818] border border-[#2e2e2e] text-[#8b5cf6] shrink-0">

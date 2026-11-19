@@ -29,7 +29,7 @@ export default function EventDetails() {
     {
       label: "DATE",
       value: EVENT_CONFIG.date,
-      subvalue: "Wednesday & Thursday • 2-Day Fest",
+      subvalue: "Monday & Tuesday • 2-Day Fest",
       icon: <Calendar className="w-5 h-5 text-[#c084fc]" />
     },
     {
